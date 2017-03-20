@@ -1,0 +1,22 @@
+<ion-view view-title="Chats">
+  <ion-content>
+    <div class="softgearHeader">
+      <span class="pull-left"><i class="xi-network-home"></i> 홈방</span>
+      단말기 관리
+      <span class="pull-right"><small>soft</small>GEAR</span>
+      <div class="spacer"></div>
+    </div>
+    <ion-list>
+      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="chat in chats" type="item-text-wrap" href="#/tab/content/{{chat.id}}">
+        <img ng-src="{{chat.face}}">
+        <h2>{{chat.name}}</h2>
+        <p>{{chat.lastText}}</p>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+
+        <ion-option-button class="button-assertive" ng-click="remove(chat)">
+          Delete
+        </ion-option-button>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

@@ -1,0 +1,29 @@
+<ion-view>
+  <ion-content>
+
+    <div class="softgearHeader">
+      <span class="pull-left">
+        <button class="button button-small" ng-click="openNewDevice()"><i class="xi-plus"></i> 새 단말기</button>
+      </span>
+      단말기 관리
+     <span class="pull-right">
+        <button class="button button-small" ng-click="goState('settings')"><i class="xi-cog"></i></button>
+      </span>
+      <div class="spacer"></div>
+    </div>
+
+
+    <ion-list>
+      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="device in devices" type="item-text-wrap" href="#/tab/device/{{device.id}}">
+        <img ng-src="{{device.face}}" />
+        <h2>{{device.name}}</h2>
+        <p>{{device.lastText}}</p>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+
+        <ion-option-button class="button-assertive" ng-click="remove(device)">
+          Delete
+        </ion-option-button>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>
