@@ -81,4 +81,165 @@ angular.module('starter.services', [])
       return null;
     }
   };
+})
+
+.factory('Auth', function(Member, Toast) {
+    var self = this;
+
+    self.isLogged = function(){
+        Member.getLoggedInfo().then(function(res){
+            console.log(res);
+            if(res.error==0){
+                return true;
+            }else{
+                return false;
+            }
+        });
+    };
+
+    return self;
+})
+
+.factory('Member', function(XisoApi){
+    var service = {};
+
+    service.getLoggedInfo = function() {
+        return XisoApi.send('member.getLoggedInfo');
+    };
+    service.refreshSession = function() {
+        return XisoApi.send('member.refreshSession');
+    };
+    service.getList = function(params) {
+        return XisoApi.send('member.getList', params);
+    };
+    service.save = function(params) {
+        return XisoApi.send('member.procSave', params);
+    };
+    service.delete = function(params) {
+        return XisoApi.send('member.procDelete', params);
+    };
+    service.login = function(params) {
+        return XisoApi.send('member.procLogin', params);
+    };
+    service.logout = function() {
+        return XisoApi.send('member.procLogout');
+    };
+
+    return service;
+})
+
+.factory('CurrentChannel', function(Channel){
+    var self = this;
+
+    self.get = function(){
+        return JSON.parse(window.localStorage['channel']);
+    };
+    self.set = function(channel){
+        console.log(channel);
+        window.localStorage['channel'] = JSON.stringify(channel);
+    };
+    self.init = function(){
+        if(!window.localStorage['channel']) {
+            console.log('채널이 없자나');
+            Channel.getChannelByMemberSrl().then(function (res) {
+                console.log(res);
+                if (res.error == 0) {
+                    var result = res.result;
+                    Channel.getUsedSpace(result).then(function (res2) {
+                        if (res2.used_space) {
+                            result.used_space = res2.used_space / 1024 / 1024;
+                        } else {
+                            result.used_space = 0;
+                        }
+
+                        self.set(result);
+                    });
+                } else {
+                    self.set({});
+                }
+            });
+        }
+    };
+
+    return self;
+})
+
+.factory('Channel', function(XisoApi){
+    var service = {};
+
+    service.getChannelByMemberSrl = function(){
+        return XisoApi.send('channel.getChannelByMemberSrl');
+    };
+    service.getUsedSpace = function(params){
+        return XisoApi.send('channel.getUsedSpace', params);
+    };
+    service.updateChannelTitle = function(params){
+        return XisoApi.send('channel.procUpdateChannelTitle', params);
+    };
+
+    return service;
+})
+
+.factory('Player', function(XisoApi){
+    var service = {};
+
+    service.addPlayer = function(params){
+        return XisoApi.send('player.procUpdateByApp', params);
+    };
+    service.getList = function(params){
+        return XisoApi.send('player.getList', params);
+    };
+    service.get = function(params){
+        return XisoApi.send('player.get', params);
+    };
+
+    return service;
+})
+
+.factory('Toast', function($cordovaToast){
+    return function(text) {
+        $cordovaToast.showShortBottom(text);
+    }
+})
+
+.factory("Object", function(){
+    return function(error, message, data){
+        var obj = {};
+        obj.error = error;
+        obj.message = message;
+
+        if(typeof data === "undefined") {
+            data = false;
+        }
+        obj.data = data;
+        return obj;
+    }
+})
+
+.factory('XisoApi', function($http, Object){
+    var service = {};
+    // var baseUrl = 'http://did.xiso.co.kr';
+    var baseUrl = '/api';
+
+    var finalUrl = '';
+
+    service.send = function(action, params){
+        finalUrl = baseUrl + '/api.php?act=' + action;
+        // console.log(finalUrl);
+
+        var result = $http({
+            method: 'POST',
+            url: finalUrl,
+            data: params
+        }).then(function(res){
+            return res.data;
+        }, function(err){
+            console.log(err);
+            return Object(-1, "서버와의 통신에 실패하였습니다.");
+        });
+
+        return result;
+    };
+
+    return service;
 });

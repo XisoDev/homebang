@@ -319,3 +319,22 @@ a{
   padding:8px;
   color:#FFF;
 }
+
+.item-stacked-label {
+    background: #fff;
+}
+
+.small_btn{
+    font-size:1em !important;
+    padding: 0 10px;
+    height:34px;
+}
+
+.item-button-right{
+    padding: 6px 70px 5px 16px;
+}
+
+.item-button-right > .button, .item-button-right .item-content > .button, .item-button-right > .buttons, .item-button-right .item-content > .buttons {
+    top: initial;
+    bottom: 5px;
+}

@@ -13,11 +13,10 @@
       <div class="channel_info">
         <h2>채널정보</h2>
         <div class="channel_thumbnail">
-          <img src="./img/thumbnail.jpg" width="100%" />
-          <span> <i class="xi-pen"></i> 편집</span>
+          <img ng-src="{{params.rep_img | trustMainUrl}}" width="100%" />
         </div>
-        <h3>
-          레데또 브랜드
+        <h3 ng-click="showMdTitle()">
+          {{params.title}}
           <i class="xi-pen"></i>
         </h3>
       </div>
@@ -41,8 +40,8 @@
         <i class="xi-security"></i> 채널정보
       </div>
       <div class="col">
-        <p> 분류 : 방송 </p>
-        <p> 채널코드 : 1402190233 </p>
+        <p> 분류 : {{params.category}} </p>
+        <p> 채널코드 : {{params.ch_id}} </p>
       </div>
     </div>
 
@@ -51,9 +50,35 @@
         <i class="xi-server-network"></i> 서버 사용량
       </div>
       <div class="col">
-        <p> 114.4M / 500M </p>
+        <p> {{params.used_space | number:1}}M / {{params.limit | number:1 }}M </p>
         <a href="#">용량을 추가할까요? </a>
       </div>
     </div>
   </ion-content>
+    <!--modal title-->
+    <script id="mdTitle" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">채널명 변경</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdTitle()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <div class="padding">
+                    <p class="help-block">채널명을 변경합니다.</p>
+                </div>
+                <div class="list">
+                    <label class="item item-input">
+                        <input type="text" placeholder="채널명" ng-model="params.title">
+                    </label>
+                </div>
+                <div class="padding">
+                    <button class="button button-block button-positive button-small" ng-click="updateChannelTitle()">
+                        저장
+                    </button>
+                </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
 </ion-view>

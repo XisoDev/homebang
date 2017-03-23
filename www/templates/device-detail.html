@@ -4,9 +4,9 @@
       <span class="pull-left">
         <button class="button button-small" ng-click="goState('tab.device')"><i class="xi-angle-left"></i> 단말기 목록</button>
       </span>
-      {{device.name}}
+      {{device.title}}
       <span class="pull-right">
-        <button class="button button-small">
+        <button class="button button-small" ng-click="showMdDevice()">
           <i class="xi-pen"></i> 기기 편집
         </button>
       </span>
@@ -18,38 +18,78 @@
         <span><i class="xi-airplay"></i> ON AIR </span>
         <span><i class="xi-play"></i> 100 </span>
       </div>
-      <img src="./img/8.jpg" width="100%" />
+      <img src="{{device.rep_img | trustMainUrl}}" style="width:100%" />
       <h4>{{device.lastText}}</h4>
     </div>
 
-    <div class="button-bar padding">
-      <a ng-click="showTab = 'template'" ng-class="{'button-royal' : showTab == 'template'}" class="button button-small">템플릿</a>
-      <a ng-click="showTab = 'banner'" ng-class="{'button-royal' : showTab == 'banner'}" class="button button-small">배너관리</a>
-      <a ng-click="showTab = 'timeline'" ng-class="{'button-royal' : showTab == 'timeline'}" class="button button-small">타임라인</a>
-    </div>
-
-    <div class="padding" ng-show="showTab == 'template'">
-      <h4>
-        사용중인 템플릿
-        <button class="pull-right button button-clear button-small button-dark">
-          <i class="xi-refresh"></i> 변경
-        </button>
-      </h4>
-      <img src="./img/template_ex.png" width="100%" />
-      <div class="list">
-        <a class="item">
-          템플릿 유형 : 방송형 / DID형
-        </a>
-        <a class="item">
-          타임라인 : 2개
-        </a>
+    <div class="informationbox">
+      <div class="design_banner">
+          <i class="ion-document-text"></i> 설명
+      </div>
+      <div class="col">
+          <p>{{device.desc ? device.desc : '설명이 없습니다'}}</p>
       </div>
     </div>
 
-    <div class="padding" ng-show="showTab == 'banner'">
-      <h4>DID 템플릿 배너</h4>
-        <hr />
-      <h4>방송용 템플릿 배너</h4>
+    <div class="informationbox">
+      <div class="design_banner">
+          <i class="ion-ios-information-outline"></i> 기기 정보
+      </div>
+      <div class="col">
+          <p> UUID : {{device.uuid}} </p>
+          <p> Model : {{device.model}} </p>
+          <p> Serial : {{device.serial}} </p>
+          <p> Model : {{device.model}} </p>
+      </div>
     </div>
+
+    <div class="informationbox">
+        <div class="design_banner">
+            <i class="xi-security"></i> 채널 정보
+        </div>
+        <div class="col">
+            <p> 채널 ID : {{device.ch_id}} </p>
+            <p> 대표 컨텐츠 : {{device.content_srl}} </p>
+        </div>
+    </div>
+
   </ion-content>
+    <!--modal device-->
+    <script id="mdDevice" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">기기 변경</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdDevice()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <div class="list padding">
+                    <label class="item item-input item-stacked-label">
+                        <span class="input-label">플레이어 명</span>
+                        <input type="text" placeholder="플레이어 명" ng-model="params.title">
+                    </label>
+                    <label class="item item-input item-stacked-label">
+                        <span class="input-label">플레이어 설명</span>
+                        <textarea placeholder="플레이어 설명" ng-model="params.desc" rows="3"></textarea>
+                    </label>
+                    <label class="item item-input item-stacked-label item-button-right">
+                        <span class="input-label">채널 ID</span>
+                        <input type="text" placeholder="채널 ID" disabled="disabled" ng-model="params.ch_id">
+                        <button class="button button-royal button-small small_btn">변경</button>
+                    </label>
+                    <label class="item item-input item-stacked-label item-button-right">
+                        <span class="input-label">대표 컨텐츠</span>
+                        <input type="text" placeholder="대표 컨텐츠" disabled="disabled" ng-model="params.content_title">
+                        <button class="button button-royal button-small small_btn">변경</button>
+                    </label>
+                </div>
+                <div class="padding">
+                    <button class="button button-block button-positive button-small" ng-click="">
+                        저장
+                    </button>
+                </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
 </ion-view>

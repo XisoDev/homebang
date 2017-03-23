@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
+angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter.services'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -35,7 +35,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     .state('tab', {
     url: '/tab',
     abstract: true,
-    templateUrl: 'templates/tabs.html'
+    templateUrl: 'templates/tabs.html',
+    onEnter: function($state, Auth, Member){
+        // if(!Auth.isLogged()){
+        //     $state.go('login');
+        // }
+        Member.getLoggedInfo().then(function(res){
+            if(res.error!=0){
+                $state.go('login');
+            }
+        });
+    }
   })
 
   // Each tab has its own nav history stack:
@@ -115,4 +125,18 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
   // $urlRouterProvider.otherwise('/tab/dash');
   $urlRouterProvider.otherwise('/login');
 
+})
+
+.filter('trustUrl', function($sce){
+    return function(path, url) {
+        if(!path || !url) return ;
+        return $sce.trustAsResourceUrl(url + path.substr(1));
+    };
+})
+
+.filter('trustMainUrl', function($sce){
+    return function(path) {
+        if(!path) return ;
+        return $sce.trustAsResourceUrl('http://did.xiso.co.kr' + path.substr(1));
+    };
 });

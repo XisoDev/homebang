@@ -1,29 +1,61 @@
 <ion-view>
-  <ion-content>
+    <ion-content>
 
-    <div class="softgearHeader">
-      <span class="pull-left">
-        <button class="button button-small" ng-click="openNewDevice()"><i class="xi-plus"></i> 새 단말기</button>
-      </span>
-      단말기 관리
-     <span class="pull-right">
-        <button class="button button-small" ng-click="goState('settings')"><i class="xi-cog"></i></button>
-      </span>
-      <div class="spacer"></div>
-    </div>
+        <div class="softgearHeader">
+            <span class="pull-left">
+                <button class="button button-small" ng-click="showMdDeviceAdd()"><i class="xi-plus"></i> 새 단말기</button>
+            </span>
+            단말기 관리
+            <span class="pull-right">
+                <button class="button button-small" ng-click="goState('settings')"><i class="xi-cog"></i></button>
+            </span>
+            <div class="spacer"></div>
+        </div>
 
+        <ion-list>
+            <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="device in devices" type="item-text-wrap" href="#/tab/device/{{device.uuid}}">
+                <img ng-src="{{device.rep_img | trustMainUrl}}" />
+                <h2>{{device.title}}</h2>
+                <p>{{device.desc}}</p>
+                <i class="icon ion-chevron-right icon-accessory"></i>
 
-    <ion-list>
-      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="device in devices" type="item-text-wrap" href="#/tab/device/{{device.id}}">
-        <img ng-src="{{device.face}}" />
-        <h2>{{device.name}}</h2>
-        <p>{{device.lastText}}</p>
-        <i class="icon ion-chevron-right icon-accessory"></i>
-
-        <ion-option-button class="button-assertive" ng-click="remove(device)">
-          Delete
-        </ion-option-button>
-      </ion-item>
-    </ion-list>
-  </ion-content>
+                <ion-option-button class="button-assertive" ng-click="remove(device)">
+                    Delete
+                </ion-option-button>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+    <!--modal device add-->
+    <script id="mdDeviceAdd" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">플레이어 추가</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdDeviceAdd()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <div class="padding">
+                    <h5>플레이어 정보 입력</h5>
+                    <p class="help-block">플레이어앱을 설치하시고, 표시되는 인증코드를 입력해주세요.</p>
+                </div>
+                <div class="list">
+                    <label class="item item-input">
+                        <input type="text" placeholder="플레이어 명" ng-model="params.title">
+                    </label>
+                    <label class="item item-input">
+                        <input type="number" placeholder="인증코드" ng-model="params.auth_no">
+                    </label>
+                    <label class="item item-input">
+                        <textarea placeholder="플레이어 설명" rows="3" ng-model="params.desc"></textarea>
+                    </label>
+                </div>
+                <div class="padding">
+                    <button class="button button-block button-positive button-small" ng-click="addPlayer()">
+                        플레이어 등록
+                    </button>
+                </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
 </ion-view>
