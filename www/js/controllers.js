@@ -92,12 +92,17 @@ angular.module('starter.controllers', [])
     $scope.init();
 })
 
-.controller('deviceDetailCtrl', function($scope, $stateParams, $ionicModal, Devices, $state, Player) {
+.controller('deviceDetailCtrl', function($scope, $stateParams, $ionicModal, Devices, $state, Player, Channel, Toast, CurrentChannel, Content) {
+    $scope.channelPage = 1;
+    $scope.channelMore = true;
+    $scope.contentPage = 1;
+    $scope.contentMore = true;
+
     $scope.init = function(){
         $scope.params = {};
 
         Player.get({uuid: $stateParams.deviceId}).then(function(res){
-            console.log(res);
+            // console.log(res);
             $scope.device = res.result;
             $scope.params = angular.copy($scope.device);
         });
@@ -105,7 +110,7 @@ angular.module('starter.controllers', [])
         // $scope.showTab = 'banner';
     };
 
-    // modal 채널명 변경
+    // modal 기기 변경
     $ionicModal.fromTemplateUrl('mdDevice', {
         scope: $scope,
         animation: 'slide-in-up'
@@ -116,7 +121,138 @@ angular.module('starter.controllers', [])
         $scope.mdDevice.show();
     };
     $scope.hideMdDevice = function() {
+        document.location.reload();
         $scope.mdDevice.hide();
+    };
+
+    $scope.saveDevice = function(){
+        if(!$scope.params.ch_id) return Toast('채널ID를 선택하세요.');
+
+        Player.update($scope.params).then(function(res){
+            Toast(res.message);
+            if(res.error == 0){
+                $scope.hideMdDevice();
+            }
+        });
+    };
+
+    // modal 채널 변경
+    $ionicModal.fromTemplateUrl('mdChannel', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdChannel = modal;
+    });
+
+    $scope.showMdChannel = function(){
+        $scope.channelPage = 1;
+        $scope.channelMore = true;
+        $scope.channels = [];
+
+        Channel.getList({page : $scope.channelPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+            if(res.error==0) {
+                $scope.channels = res.list;
+                $scope.mdChannel.show();
+                $scope.channelPage++;
+            }else{
+                Toast(res.message);
+            }
+        });
+
+    };
+
+    $scope.hideMdChannel = function() {
+        $scope.channelMore = false;
+        $scope.mdChannel.hide();
+    };
+
+    $scope.selectChannel = function(channel) {
+        $scope.params.ch_id = channel.ch_id;
+        $scope.hideMdChannel();
+    };
+
+    $scope.loadMoreChannel = function(){
+        if($scope.channelPage == 1) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            return;
+        }
+
+        Channel.getList({page : $scope.channelPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            if(res.error==0) {
+                if(res.list) {
+                    for (var key in res.list) {
+                        $scope.channels.push(res.list[key]);
+                    }
+                    $scope.mdChannel.show();
+                    $scope.channelPage++;
+                }else{
+                    $scope.channelMore = false;
+                }
+            }else{
+                $scope.channelMore = false;
+                Toast(res.message);
+            }
+        });
+    };
+
+    // modal 대표컨텐츠 변경
+    $ionicModal.fromTemplateUrl('mdContent', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdContent = modal;
+    });
+    $scope.showMdContent = function(){
+        $scope.contentPage = 1;
+        $scope.contentMore = true;
+        $scope.contents = [];
+
+        Content.getList({page:$scope.contentPage, ch_id: $scope.params.ch_id}).then(function(res){
+            console.log(res);
+            if(res.error==0) {
+                $scope.contents = res.list;
+                $scope.mdContent.show();
+                $scope.contentPage++;
+            }else{
+                Toast(res.message);
+            }
+        });
+    };
+    $scope.hideMdContent = function() {
+        $scope.contentMore = false;
+        $scope.mdContent.hide();
+    };
+
+    $scope.selectContent = function(content){
+        $scope.params.content_srl = content.content_srl;
+        $scope.params.content_title = content.title;
+        $scope.hideMdContent();
+    };
+
+    $scope.loadMoreContent = function(){
+        if($scope.contentPage == 1) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            return;
+        }
+
+        Content.getList({page:$scope.contentPage, ch_id: $scope.params.ch_id}).then(function(res){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            if(res.error==0) {
+                if(res.list) {
+                    for (var key in res.list) {
+                        $scope.contents.push(res.list[key]);
+                    }
+                    $scope.mdContent.show();
+                    $scope.contentPage++;
+                }else{
+                    $scope.contentMore = false;
+                }
+            }else{
+                $scope.contentMore = false;
+                Toast(res.message);
+            }
+        });
     };
     
     $scope.goState = function(state_name){
@@ -126,7 +262,53 @@ angular.module('starter.controllers', [])
     $scope.init();
 })
 
-.controller('contentCtrl', function($scope,Chats) {
+.controller('contentCtrl', function($scope, Chats , Content, CurrentChannel, Toast) {
+    $scope.contentPage = 1;
+    $scope.contentMore = true;
+
+    $scope.init = function(){
+        $scope.params = {};
+        $scope.contents = [];
+        $scope.getList();
+    };
+
+    $scope.getList = function(){
+        Content.getList({page: $scope.contentPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+            // console.log(res);
+            if(res.error==0) {
+                $scope.contents = res.list;
+                $scope.contentPage++;
+            }else{
+                Toast(res.message);
+            }
+        });
+    };
+
+    $scope.loadMoreContent = function(){
+        if($scope.contentPage == 1) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            return;
+        }
+
+        Content.getList({page: $scope.contentPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            console.log(res);
+            if(res.error==0) {
+                if(res.list) {
+                    for (var key in res.list) {
+                        $scope.contents.push(res.list[key]);
+                    }
+                    $scope.contentPage++;
+                }else{
+                    $scope.contentMore = false;
+                }
+            }else{
+                $scope.contentMore = false;
+                Toast(res.message);
+            }
+        });
+    };
+
     $scope.goState = function(state_name){
         $state.go(state_name);
     };
@@ -134,14 +316,31 @@ angular.module('starter.controllers', [])
     $scope.remove = function(chat) {
         Chats.remove(chat);
     };
+
+    $scope.init();
 })
 
-.controller('contentDetailCtrl', function($scope, $stateParams, Chats, $state) {
+.controller('contentDetailCtrl', function($scope, $stateParams, Chats, $state, Content, Toast) {
+
+    $scope.init = function(){
+        $scope.params = {};
+
+        Content.get({content_srl: $stateParams.contentId}).then(function(res){
+            if(res.error == 0) {
+                $scope.content = res.result;
+            }else{
+                Toast(res.message);
+            }
+        });
+    };
+
     $scope.goState = function(state_name){
         $state.go(state_name);
     };
     $scope.chat = Chats.get($stateParams.contentId);
     console.log($scope.chat);
+
+    $scope.init();
 })
 
 .controller('loginCtrl', function($scope, $state, Member, Toast, CurrentChannel) {

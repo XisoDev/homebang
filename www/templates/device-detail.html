@@ -14,7 +14,7 @@
     </div>
 
     <div class="sequenceInfo">
-      <div class="iconArea">
+      <div class="iconArea" ng-if="0">
         <span><i class="xi-airplay"></i> ON AIR </span>
         <span><i class="xi-play"></i> 100 </span>
       </div>
@@ -49,7 +49,7 @@
         </div>
         <div class="col">
             <p> 채널 ID : {{device.ch_id}} </p>
-            <p> 대표 컨텐츠 : {{device.content_srl}} </p>
+            <p> 대표 컨텐츠 : {{device.content_title}} </p>
         </div>
     </div>
 
@@ -65,30 +65,81 @@
             </ion-header-bar>
             <ion-content>
                 <div class="list padding">
-                    <label class="item item-input item-stacked-label">
+                    <div class="item item-input item-stacked-label">
                         <span class="input-label">플레이어 명</span>
                         <input type="text" placeholder="플레이어 명" ng-model="params.title">
-                    </label>
-                    <label class="item item-input item-stacked-label">
+                    </div>
+                    <div class="item item-input item-stacked-label">
                         <span class="input-label">플레이어 설명</span>
                         <textarea placeholder="플레이어 설명" ng-model="params.desc" rows="3"></textarea>
-                    </label>
-                    <label class="item item-input item-stacked-label item-button-right">
+                    </div>
+                    <div class="item item-input item-stacked-label item-button-right">
                         <span class="input-label">채널 ID</span>
                         <input type="text" placeholder="채널 ID" disabled="disabled" ng-model="params.ch_id">
-                        <button class="button button-royal button-small small_btn">변경</button>
-                    </label>
-                    <label class="item item-input item-stacked-label item-button-right">
+                        <button class="button button-royal button-small small_btn" ng-click="showMdChannel()">변경</button>
+                    </div>
+                    <div class="item item-input item-stacked-label item-button-right">
                         <span class="input-label">대표 컨텐츠</span>
                         <input type="text" placeholder="대표 컨텐츠" disabled="disabled" ng-model="params.content_title">
-                        <button class="button button-royal button-small small_btn">변경</button>
-                    </label>
+                        <button class="button button-royal button-small small_btn" ng-click="showMdContent()">변경</button>
+                    </div>
                 </div>
                 <div class="padding">
-                    <button class="button button-block button-positive button-small" ng-click="">
+                    <button class="button button-block button-positive button-small"  ng-click="saveDevice()">
                         저장
                     </button>
                 </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
+
+    <!--modal channel-->
+    <script id="mdChannel" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">채널 변경</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdChannel()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <ion-list>
+                    <ion-item class="item-icon-right" ng-repeat="channel in channels" type="item-text-wrap" ng-click="selectChannel(channel)">
+                        <h2>{{channel.ch_id}}</h2>
+                        <p>카테고리 : {{channel.category}}&nbsp;&nbsp;/&nbsp;&nbsp;채널 명 : {{channel.title}}&nbsp;&nbsp;/&nbsp;&nbsp;제한용량 : {{channel.limit}}&nbsp;&nbsp;/&nbsp;&nbsp;무료여부 : {{channel.is_free == 'Y' ? '무료' : '유료'}}</p>
+                        <i class="icon ion-chevron-right icon-accessory"></i>
+                    </ion-item>
+                </ion-list>
+                <ion-infinite-scroll
+                        ng-if="channelMore"
+                        on-infinite="loadMoreChannel()">
+                </ion-infinite-scroll>
+            </ion-content>
+        </ion-modal-view>
+    </script>
+
+    <!--modal content-->
+    <script id="mdContent" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">대표 컨텐츠 변경</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdContent()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <ion-list>
+                    <ion-item class="item-avatar item-icon-right" ng-repeat="content in contents" type="item-text-wrap" ng-click="selectContent(content)">
+                        <img ng-src="{{content.rep_img | trustMainUrl}}" />
+                        <h2>{{content.title}}</h2>
+                        <p>공개 여부 : {{content.is_public == 'Y' ? '공개' : '비공개'}}&nbsp;&nbsp;/&nbsp;&nbsp;템플릿 : {{content.template}}</p>
+                        <i class="icon ion-chevron-right icon-accessory"></i>
+                    </ion-item>
+                </ion-list>
+                <ion-infinite-scroll
+                        ng-if="contentMore"
+                        on-infinite="loadMoreContent()">
+                </ion-infinite-scroll>
             </ion-content>
         </ion-modal-view>
     </script>

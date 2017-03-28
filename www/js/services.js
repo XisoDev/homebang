@@ -176,6 +176,9 @@ angular.module('starter.services', [])
     service.updateChannelTitle = function(params){
         return XisoApi.send('channel.procUpdateChannelTitle', params);
     };
+    service.getList = function(params){
+        return XisoApi.send('channel.getList', params);
+    };
 
     return service;
 })
@@ -191,6 +194,22 @@ angular.module('starter.services', [])
     };
     service.get = function(params){
         return XisoApi.send('player.get', params);
+    };
+    service.update = function(params){
+        return XisoApi.send('player.procUpdate', params);
+    };
+
+    return service;
+})
+
+.factory('Content', function(XisoApi){
+    var service = {};
+
+    service.getList = function(params){
+        return XisoApi.send('content.getList', params);
+    };
+    service.get = function(params){
+        return XisoApi.send('content.getContentForAdmin', params);
     };
 
     return service;
