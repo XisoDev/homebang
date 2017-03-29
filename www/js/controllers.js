@@ -320,12 +320,34 @@ angular.module('starter.controllers', [])
     $scope.init();
 })
 
-.controller('contentDetailCtrl', function($scope, $stateParams, Chats, $state, Content, Toast) {
+.controller('contentDetailCtrl', function($scope, $stateParams, Chats, $state, Content, Toast, CurrentChannel) {
+
+    $scope.server_url = CurrentChannel.get().data_server;
+
+    $scope.tabs = [
+        {"text" : "Home"},
+        {"text" : "Games"},
+        {"text" : "Mail"},
+        {"text" : "Car"},
+        {"text" : "Profile"},
+        {"text" : "Favourites"},
+        {"text" : "Chats"},
+        {"text" : "Settings"},
+        {"text" : "Photos"},
+        {"text" : "Pets"}
+    ];
+    $scope.onSlideMove = function(data){
+        console.log("You have selected " + data.index + " tab");
+    };
+
 
     $scope.init = function(){
         $scope.params = {};
 
+        $scope.showTab = 'info';
+
         Content.get({content_srl: $stateParams.contentId}).then(function(res){
+            console.log(res);
             if(res.error == 0) {
                 $scope.content = res.result;
             }else{
@@ -334,11 +356,17 @@ angular.module('starter.controllers', [])
         });
     };
 
+    $scope.goTab = function(tabName){
+        $scope.showTab = tabName;
+    };
+
+    $scope.goTimeline = function(index){
+        console.log(index);
+    };
+
     $scope.goState = function(state_name){
         $state.go(state_name);
     };
-    $scope.chat = Chats.get($stateParams.contentId);
-    console.log($scope.chat);
 
     $scope.init();
 })
@@ -391,3 +419,16 @@ angular.module('starter.controllers', [])
         });
     };
 });
+
+// 2차원 배열 -> 1차원 배열로
+function convert_array_2D_to_1D(arrToConvert){
+    var newArr = [];
+
+    for (k1 in arrToConvert) {
+        for (k2 in arrToConvert[k1]){
+            newArr[k2] =  arrToConvert[k1][k2];
+        }
+    }
+
+    return newArr;
+}
