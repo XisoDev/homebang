@@ -211,6 +211,9 @@ angular.module('starter.services', [])
     service.get = function(params){
         return XisoApi.send('content.getContentForAdmin', params);
     };
+    service.save = function(params){
+        return XisoApi.send('content.procSaveByApp', params);
+    };
 
     return service;
 })

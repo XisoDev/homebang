@@ -1,15 +1,15 @@
 <ion-view>
     <ion-content>
         <div class="softgearHeader">
-      <span class="pull-left">
-        <button class="button button-small" ng-click="goState('tab.content')"><i class="xi-angle-left"></i> 컨텐츠 목록</button>
-      </span>
-            {{content.title}}
-      <span class="pull-right">
-        <button class="button button-small">
-          <i class="xi-pen"></i> 기기 편집
-        </button>
-      </span>
+            <span class="pull-left">
+                <button class="button button-small" ng-click="goState('tab.content')"><i class="xi-angle-left"></i> 컨텐츠 목록</button>
+            </span>
+            {{params.title}}
+            <!--<span class="pull-right">-->
+            <!--<button class="button button-small">-->
+            <!--<i class="xi-pen"></i> 기기 편집-->
+            <!--</button>-->
+            <!--</span>-->
             <div class="spacer"></div>
         </div>
 
@@ -19,24 +19,46 @@
         </div>
 
         <div class="padding" ng-if="showTab == 'info'">
-            <h4>
-                사용중인 템플릿
+            <h5>
+                대표 이미지
                 <button class="pull-right button button-clear button-small button-dark">
                     <i class="xi-refresh"></i> 변경
                 </button>
-            </h4>
-            <div class="sequenceInfo">
-                <img src="{{content.rep_img | trustMainUrl}}" style="width:100%" />
-                <h4>{{content.title}}</h4>
+            </h5>
+            <div class="sequenceInfo" ng-style="params.rep_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.rep_img | trustMainUrl}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
+                <span ng-if="!params.rep_img">등록된 대표 이미지가 없습니다.</span>
             </div>
-            <div class="list">
-                <a class="item">
-                    템플릿 유형 : 방송형 / DID형
-                </a>
-                <a class="item">
-                    타임라인 : 2개
-                </a>
+            <h5>
+                배경 이미지
+                <button class="pull-right button button-clear button-small button-dark">
+                    <i class="xi-refresh"></i> 변경
+                </button>
+            </h5>
+            <div class="sequenceInfo" ng-style="params.bg_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.bg_img | trustMainUrl}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
+                <span ng-if="!params.bg_img">등록된 배경 이미지가 없습니다.</span>
             </div>
+            <ul class="list">
+                <li class="item item-select">
+                    시계표시
+                    <label>
+                        <select ng-model="params.clock">
+                            <option value="N">없음</option>
+                            <option value="T">상단</option>
+                            <option value="M">중단</option>
+                            <option value="B">하단</option>
+                        </select>
+                    </label>
+                </li>
+                <li class="item item-toggle">
+                    공개
+                    <label class="toggle toggle-assertive">
+                        <input type="checkbox">
+                        <div class="track">
+                            <div class="handle"></div>
+                        </div>
+                    </label>
+                </li>
+            </ul>
         </div>
         <style>
             .slider-slide h3{
@@ -52,22 +74,49 @@
             }
         </style>
         <div class="padding" ng-if="showTab == 'timeline'">
-            <tab-slide-box>
+            <h5>
+                사용중인 템플릿
+                <button class="pull-right button button-clear button-small button-dark" ng-click="showTemplate()">
+                    <i class="xi-refresh"></i> 변경
+                </button>
+            </h5>
+            <div class="sequenceInfo" ng-style="params.template ? {} : { 'height': 'auto', 'padding': '20px' }">
+                <div ng-if="params.template" class="template" ng-include="'./templates/tpls/' + params.template + '.html'" style="height:200px;"></div>
+                <span ng-if="!params.template">선택된 템플릿이 없습니다.</span>
+            </div>
+            <div class="list">
+                <a class="item">
+                    템플릿 유형 : {{tpls1D[params.template].title}}
+                </a>
+                <a class="item">
+                    타임라인 : {{tpls1D[params.template].sequence_count}}개
+                </a>
+            </div>
+
+            <tab-slide-box tab="0" ng-if="params.template">
                 <div class="tsb-icons">
                     <div class="tsb-ic-wrp">
                         <ion-scroll direction="x" class="tsb-hscroll">
-                            <a href="javascript:;" class="{{tab.icon}}" ng-repeat="timeline in content.timelines" on-finish-render="test()">{{$index+1}}</a>
+                            <a href="javascript:;" class="{{tab.icon}}" ng-repeat="timeline in params.timelines" on-finish-render="test()">{{$index+1}}</a>
                         </ion-scroll>
                     </div>
                 </div>
                 <ion-slide-box show-pager="false" on-slide-changed="slideHasChanged($index)">
-                    <ion-slide ng-repeat="timeline in content.timelines">
-                        <h5> 타임라인
-                            <a ng-show="!shouldShowReorder" ng-click="shouldShowReorder = !shouldShowReorder" style="float:right;">순서 편집</a>
-                            <a ng-show="shouldShowReorder" ng-click="shouldShowReorder = !shouldShowReorder" style="float:right;">완료</a>
-                        </h5>
-
-                        <ion-list show-reorder="shouldShowReorder" style="pointer-events: auto;">
+                    <ion-slide ng-repeat="timeline in params.timelines">
+                        <ion-header-bar class="bar-positive">
+                            <div class="buttons">
+                                <button class="button button-icon icon ion-ios-minus-outline"
+                                        ng-click="shouldShowDelete = !shouldShowDelete; shouldShowReorder = false"></button>
+                            </div>
+                            <h5 class="title">{{$index+1}}번 타임라인</h5>
+                            <div class="buttons">
+                                <button class="button" ng-click="shouldShowDelete = false; shouldShowReorder = !shouldShowReorder">
+                                    순서변경
+                                </button>
+                            </div>
+                        </ion-header-bar>
+                        <div style="clear: both; padding-top:43px;"></div>
+                        <ion-list show-delete="shouldShowDelete" show-reorder="shouldShowReorder" can-swipe="false">
                             <ion-item class="item-remove-animate item-thumbnail-left item-icon-right" ng-repeat="item in timeline">
                                 <img ng-src="{{item.thumb_filename | trustUrl : server_url}}" ng-click="showTimeEdit(play_list)" />
                                 <h2>
@@ -77,19 +126,11 @@
                                     {{item.file_type}}
                                 </p>
                                 <p class="help-block">
-                                    <b>카운트</b>
-                                    0
-                                </p>
-                                <p class="help-block">
-                                    <b>러닝타임</b>
-                                    {{item.duration}}초
+                                    <b>카운트</b> 0 <b>러닝타임</b> {{item.duration}}초
                                 </p>
 
-                                <ion-option-button class="button-assertive" ng-click="removeTimeline($index)">
-                                    클립 제거
-                                </ion-option-button>
-                                <ion-reorder-button class="ion-navicon" on-reorder="clipReorder(play_list, $fromIndex, $toIndex)">
-                                </ion-reorder-button>
+                                <ion-delete-button class="ion-minus-circled" ng-click="timeline.splice($index, 1)"></ion-delete-button>
+                                <ion-reorder-button class="ion-navicon" on-reorder="moveItem(timeline, item, $fromIndex, $toIndex)"></ion-reorder-button>
 
                             </ion-item>
                             <ion-item ng-click="addClip()">
@@ -100,5 +141,39 @@
                 </ion-slide-box>
             </tab-slide-box>
         </div>
+        <div class="padding">
+            <button class="button button-block button-positive button-small"  ng-click="saveContent()">
+                기본 정보와 타임라인을 저장합니다
+            </button>
+        </div>
     </ion-content>
+
+    <!--modal template select-->
+    <script id="mdTemplate" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">템플릿 선택</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdTemplate()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <div class="padding">
+                    <h5>템플릿 선택</h5>
+                    <p class="help-block">플레이어 화면에 표시될 템플릿을 선택합니다.</p>
+                </div>
+                <div class="button-bar padding">
+                    <a ng-click="showTpltab = 'live'" ng-class="{'button-royal' : showTpltab == 'live'}" class="button button-small">방송용</a>
+                    <a ng-click="showTpltab = 'row_did'" ng-class="{'button-royal' : showTpltab == 'row_did'}" class="button button-small">DID 가로형</a>
+                    <a ng-click="showTpltab = 'col_did'" ng-class="{'button-royal' : showTpltab == 'col_did'}" class="button button-small">DID 세로형</a>
+                </div>
+                <div ng-repeat="(category,list) in tpls" class="padding">
+                    <ul class="template_ul {{category}}" ng-show="showTpltab == category">
+                        <li ng-repeat="(key,val) in list" ng-class="{'active': key == params.template}" ng-click="changeTpl(key, val)" ng-include="'./templates/tpls/' + key + '.html'">
+                        </li>
+                    </ul>
+                </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
 </ion-view>

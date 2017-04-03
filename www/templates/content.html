@@ -1,26 +1,57 @@
 <ion-view view-title="컨텐츠 관리">
-  <ion-content>
-    <div class="softgearHeader">
-      <span class="pull-left"><i class="xi-network-home"></i> 홈방</span>
-      컨텐츠 관리
-      <span class="pull-right"><small>soft</small>GEAR</span>
-      <div class="spacer"></div>
-    </div>
-    <ion-list>
-      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="content in contents" type="item-text-wrap" href="#/tab/content/{{content.content_srl}}">
-        <img ng-src="{{content.rep_img | trustMainUrl}}">
-        <h2>{{content.title}}</h2>
-        <p>{{content.template}}</p>
-        <i class="icon ion-chevron-right icon-accessory"></i>
+    <ion-content>
+        <div class="softgearHeader">
+        <span class="pull-left">
+            <button class="button button-small" ng-click="showMdContentAdd()"><i class="xi-plus"></i> 새 컨텐츠</button>
+        </span>
+            컨텐츠 관리
+            <span class="pull-right">
+                <button class="button button-small" ng-click="goState('settings')"><i class="xi-cog"></i></button>
+            </span>
+            <div class="spacer"></div>
+        </div>
+        <ion-list>
+            <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="content in contents" type="item-text-wrap" href="#/tab/content/{{content.content_srl}}">
+                <img ng-src="{{content.rep_img ? (content.rep_img | trustMainUrl) : './img/no_image.png'}}">
+                <h2>{{content.title}}</h2>
+                <p ng-show="content.template">유형 : {{tpls1D[content.template].title}} / 타임라인 : {{tpls1D[content.template].sequence_count}}개</p>
+                <i class="icon ion-chevron-right icon-accessory"></i>
 
-        <ion-option-button class="button-assertive" ng-click="remove(chat)">
-          Delete
-        </ion-option-button>
-      </ion-item>
-    </ion-list>
-      <ion-infinite-scroll
-              ng-if="contentMore"
-              on-infinite="loadMoreContent()">
-      </ion-infinite-scroll>
-  </ion-content>
+                <ion-option-button class="button-assertive" ng-click="remove(chat)">
+                    Delete
+                </ion-option-button>
+            </ion-item>
+        </ion-list>
+        <ion-infinite-scroll
+                ng-if="contentMore"
+                on-infinite="loadMoreContent()">
+        </ion-infinite-scroll>
+    </ion-content>
+    <!--modal device add-->
+    <script id="mdContentAdd" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">컨텐츠 추가</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdContentAdd()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <div class="padding">
+                    <h5>컨텐츠 생성</h5>
+                    <p class="help-block">새로운 컨텐츠를 생성합니다.</p>
+                </div>
+                <div class="list">
+                    <label class="item item-input">
+                        <input type="text" placeholder="컨텐츠 명" ng-model="params.title">
+                    </label>
+                </div>
+                <div class="padding">
+                    <button class="button button-block button-positive button-small" ng-click="addContent()">
+                        컨텐츠 생성
+                    </button>
+                </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
 </ion-view>

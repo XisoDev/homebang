@@ -67,7 +67,7 @@ angular.module('starter.controllers', [])
         });
     };
 
-    // modal 채널명 변경
+    // modal 새 디바이스
     $ionicModal.fromTemplateUrl('mdDeviceAdd', {
         scope: $scope,
         animation: 'slide-in-up'
@@ -262,7 +262,10 @@ angular.module('starter.controllers', [])
     $scope.init();
 })
 
-.controller('contentCtrl', function($scope, Chats , Content, CurrentChannel, Toast) {
+.controller('contentCtrl', function($scope, $state, Chats , Content, CurrentChannel, Toast, Tpl, $ionicModal) {
+
+    $scope.tpls1D = convert_array_2D_to_1D(Tpl);    // 템플릿 1차원 배열
+
     $scope.contentPage = 1;
     $scope.contentMore = true;
 
@@ -308,38 +311,46 @@ angular.module('starter.controllers', [])
             }
         });
     };
+    
+    $scope.addContent = function(){
+        $scope.params.ch_srl = CurrentChannel.get().ch_srl;
+        
+        Content.save($scope.params).then(function(res){
+            Toast(res.message);
+            if(res.error==0){
+                $state.go('tab.content-detail',{contentId : res.result.content_srl});
+                $scope.hideMdContentAdd();
+            }
+        });
+    };
+
+    // modal 새 디바이스
+    $ionicModal.fromTemplateUrl('mdContentAdd', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdContentAdd = modal;
+    });
+    $scope.showMdContentAdd = function(){
+        $scope.mdContentAdd.show();
+    };
+    $scope.hideMdContentAdd = function() {
+        $scope.mdContentAdd.hide();
+    };
 
     $scope.goState = function(state_name){
         $state.go(state_name);
-    };
-    $scope.chats = Chats.all();
-    $scope.remove = function(chat) {
-        Chats.remove(chat);
     };
 
     $scope.init();
 })
 
-.controller('contentDetailCtrl', function($scope, $stateParams, Chats, $state, Content, Toast, CurrentChannel) {
+.controller('contentDetailCtrl', function($scope, $stateParams, Chats, $state, Content, Toast, CurrentChannel, Tpl, $ionicModal, $ionicPopup) {
+
+    $scope.tpls = Tpl;
+    $scope.tpls1D = convert_array_2D_to_1D(Tpl);    // 템플릿 1차원 배열
 
     $scope.server_url = CurrentChannel.get().data_server;
-
-    $scope.tabs = [
-        {"text" : "Home"},
-        {"text" : "Games"},
-        {"text" : "Mail"},
-        {"text" : "Car"},
-        {"text" : "Profile"},
-        {"text" : "Favourites"},
-        {"text" : "Chats"},
-        {"text" : "Settings"},
-        {"text" : "Photos"},
-        {"text" : "Pets"}
-    ];
-    $scope.onSlideMove = function(data){
-        console.log("You have selected " + data.index + " tab");
-    };
-
 
     $scope.init = function(){
         $scope.params = {};
@@ -349,11 +360,65 @@ angular.module('starter.controllers', [])
         Content.get({content_srl: $stateParams.contentId}).then(function(res){
             console.log(res);
             if(res.error == 0) {
-                $scope.content = res.result;
+                $scope.params = res.result;
             }else{
                 Toast(res.message);
             }
         });
+    };
+
+    // 템플릿 변경을 눌렀을때
+    $scope.showTemplate = function(){
+        // ionic confirm 으로 $scope.content.template 가 있으면 타임라인 다 날라간다는 경고 얘기해줌
+
+        $ionicPopup.confirm({
+            title: '경고',
+            template: '템플릿과 타임라인이 초기화됩니다.<br/>계속할까요?',
+            okText: '예', cancelText: '아니오'
+        }).then(function(res) {
+            if (res) {
+                $scope.params.template = null;
+
+                if (!$scope.params.template) {
+                    $scope.showTpltab = 'live';
+                } else {
+                    var template_parent = $scope.params.template.substring(0, 5);
+                    if (template_parent == 'did_r') {
+                        $scope.showTpltab = 'row_did';
+                    } else if (template_parent == 'did_c') {
+                        $scope.showTpltab = 'col_did';
+                    } else {
+                        $scope.showTpltab = 'live';
+                    }
+                }
+
+                $scope.showMdTemplate();
+            }
+        });
+    };
+
+    // 템플릿 종류를 선택한다
+    $scope.changeTpl = function(key, val){
+        $scope.params.template = key;
+        $scope.params.timelines = [];
+        for(var i=0; i < val.sequence_count; i++){
+            $scope.params.timelines[i] = [];
+        }
+
+        $scope.hideMdTemplate();
+    };
+
+    $scope.onSlideMove = function(data){
+        console.log("You have selected " + data.index + " tab");
+    };
+
+    $scope.moveItem = function(timeline, item, fromIndex, toIndex) {
+        timeline.splice(fromIndex, 1);
+        timeline.splice(toIndex, 0, item);
+    };
+
+    $scope.onItemDelete = function(item) {
+        $scope.items.splice($scope.items.indexOf(item), 1);
     };
 
     $scope.goTab = function(tabName){
@@ -362,6 +427,20 @@ angular.module('starter.controllers', [])
 
     $scope.goTimeline = function(index){
         console.log(index);
+    };
+
+    // modal 템플릿 선택
+    $ionicModal.fromTemplateUrl('mdTemplate', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdTemplate = modal;
+    });
+    $scope.showMdTemplate = function(){
+        $scope.mdTemplate.show();
+    };
+    $scope.hideMdTemplate = function() {
+        $scope.mdTemplate.hide();
     };
 
     $scope.goState = function(state_name){
