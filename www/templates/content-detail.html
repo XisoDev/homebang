@@ -21,24 +21,26 @@
         <div class="padding" ng-if="showTab == 'info'">
             <h5>
                 대표 이미지
-                <button class="pull-right button button-clear button-small button-dark">
+                <button class="pull-right button button-clear button-small button-dark" ng-click="getContentImage('rep')">
                     <i class="xi-refresh"></i> 변경
                 </button>
             </h5>
-            <div class="sequenceInfo" ng-style="params.rep_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.rep_img | trustMainUrl}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
+            <div ng-if="!rep_img" class="sequenceInfo" ng-style="params.rep_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.rep_thumb | trustMainUrl}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
                 <span ng-if="!params.rep_img">등록된 대표 이미지가 없습니다.</span>
             </div>
+
             <h5>
                 배경 이미지
-                <button class="pull-right button button-clear button-small button-dark">
+                <button class="pull-right button button-clear button-small button-dark" ng-click="getContentImage('bg')">
                     <i class="xi-refresh"></i> 변경
                 </button>
             </h5>
-            <div class="sequenceInfo" ng-style="params.bg_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.bg_img | trustMainUrl}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
+            <div ng-if="!bg_img" class="sequenceInfo" ng-style="params.bg_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.bg_thumb | trustMainUrl}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
                 <span ng-if="!params.bg_img">등록된 배경 이미지가 없습니다.</span>
             </div>
-            <ul class="list">
-                <li class="item item-select">
+
+            <ion-list>
+                <ion-item class="item-select">
                     시계표시
                     <label>
                         <select ng-model="params.clock">
@@ -48,17 +50,9 @@
                             <option value="B">하단</option>
                         </select>
                     </label>
-                </li>
-                <li class="item item-toggle">
-                    공개
-                    <label class="toggle toggle-assertive">
-                        <input type="checkbox">
-                        <div class="track">
-                            <div class="handle"></div>
-                        </div>
-                    </label>
-                </li>
-            </ul>
+                </ion-item>
+                <ion-toggle ng-model="params.checked_public" toggle-class="toggle-assertive">공개</ion-toggle>
+            </ion-list>
         </div>
         <style>
             .slider-slide h3{
@@ -84,7 +78,7 @@
                 <div ng-if="params.template" class="template" ng-include="'./templates/tpls/' + params.template + '.html'" style="height:200px;"></div>
                 <span ng-if="!params.template">선택된 템플릿이 없습니다.</span>
             </div>
-            <div class="list">
+            <div class="list" ng-if="params.template">
                 <a class="item">
                     템플릿 유형 : {{tpls1D[params.template].title}}
                 </a>
@@ -118,22 +112,25 @@
                         <div style="clear: both; padding-top:43px;"></div>
                         <ion-list show-delete="shouldShowDelete" show-reorder="shouldShowReorder" can-swipe="false">
                             <ion-item class="item-remove-animate item-thumbnail-left item-icon-right" ng-repeat="item in timeline">
-                                <img ng-src="{{item.thumb_filename | trustUrl : server_url}}" ng-click="showTimeEdit(play_list)" />
+                                <img ng-src="{{item.thumb_filename ? (item.thumb_filename | trustUrl) : './img/url.png'}}" ng-click="showTimeEdit(play_list)">
                                 <h2>
                                     {{item.title}}
                                 </h2>
                                 <p class="help-block">
-                                    {{item.file_type}}
+                                    {{clip_type[item.clip_type]}}
                                 </p>
                                 <p class="help-block">
                                     <b>카운트</b> 0 <b>러닝타임</b> {{item.duration}}초
+                                </p>
+                                <p class="help-block" ng-if="item.url_prefix && item.url && item.url_prefix!='null' && item.url!='null'">
+                                    {{item.url_prefix}}{{item.url}}
                                 </p>
 
                                 <ion-delete-button class="ion-minus-circled" ng-click="timeline.splice($index, 1)"></ion-delete-button>
                                 <ion-reorder-button class="ion-navicon" on-reorder="moveItem(timeline, item, $fromIndex, $toIndex)"></ion-reorder-button>
 
                             </ion-item>
-                            <ion-item ng-click="addClip()">
+                            <ion-item ng-click="addClip(timeline)">
                                 <i class="icon ion-ios-plus-empty"></i> 클립 추가
                             </ion-item>
                         </ion-list>
@@ -173,6 +170,102 @@
                         </li>
                     </ul>
                 </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
+
+    <!--modal clip upload-->
+    <script id="mdUpload" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdUpload()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+                <h1 class="title">{{clip_type[upClip.clip_type]}} 클립 업로드</h1>
+            </ion-header-bar>
+            <ion-content>
+                <div class="padding">
+                    <p class="help-block">새로운 클립을 업로드합니다.</p>
+                </div>
+                <div class="list card">
+                    <div class="item item-image" ng-if="upClip.clip_type != 'U'">
+                        <img ng-src="{{cameraimage}}" ng-if="upClip.clip_type == 'I'">
+                        <video controls width="100%" ng-if="upClip.clip_type == 'V'">
+                            <source ng-src="{{cameraimage}}" type="video/mp4">
+                            비디오플레이가 지원되지 않습니다. 브라우저를 업데이트하세요.
+                        </video>
+                    </div>
+                    <label class="item item-input">
+                        <span class="input-label">클립 명</span>
+                        <input type="text" placeholder="클립 명" ng-model="upClip.title" >
+                    </label>
+                    <label class="item item-input">
+                        <span class="input-label">타입</span>
+                        <span style="color:gray;">{{clip_type[upClip.clip_type]}}</span>
+                    </label>
+                    <label class="item item-input" ng-if="upClip.clip_type != 'V'">
+                        <span class="input-label">러닝 타임 (초)</span>
+                        <!--<span ng-show="upClip.clip_type == 'V'" style="color:gray;">자동 생성</span>-->
+                        <input type="number" placeholder="러닝타임(초)" ng-model="upClip.duration" >
+                    </label>
+                    <label class="item item-input item-select">
+                        <span class="input-label">전환 효과</span>
+                        <select ng-model="upClip.transition">
+                            <option ng-repeat="tran in trans" value="{{tran}}">{{tran}}</option>
+                        </select>
+                    </label>
+                    <label class="item item-input item-select">
+                        <span class="input-label">링크 종류</span>
+                        <select ng-model="upClip.url_prefix">
+                            <option value="">없음</option>
+                            <option ng-repeat="up in url_prefix" value="{{up}}">{{up}}</option>
+                        </select>
+                    </label>
+                    <label class="item item-input" ng-if="upClip.url_prefix">
+                        <span class="input-label">링크</span>
+                        <span style="color:gray;">{{upClip.url_prefix}}</span>
+                        <input type="text" placeholder="(예) softgear.co.kr, 01012345678, master@softgear.co.kr, ..." ng-model="upClip.url">
+                    </label>
+                </div>
+                <div class="padding">
+                    <button class="button button-block button-positive button-small" ng-click="saveClip()">
+                        완료
+                    </button>
+                </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
+
+    <!--modal clip select-->
+    <script id="mdClip" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdClip()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+                <h1 class="title">클립 선택</h1>
+                <label class="item-input-wrapper title" style="text-align:left; height:auto; top:2px; left:35px; right:40px;" ng-if="showSearch">
+                    <input type="text" placeholder="클립명으로 찾기..." ng-model="search.title" style="background: transparent; width: 100%; margin-top: 5px;"/>
+                </label>
+                <div class="buttons">
+                    <button class="button button-icon ion-ios-search" ng-click="showSearch = !showSearch; search.title=''"></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <ion-list>
+                    <ion-item class="item-thumbnail-left item-icon-right" ng-repeat="clip in clips | filter:search:strict" type="item-text-wrap" ng-click="selectClip(clip)">
+                        <img ng-src="{{clip.thumb_filename ? (clip.thumb_filename | trustUrl) : './img/url.png'}}" height="80">
+                        <h2>{{clip.title}}</h2>
+                        <p class="help-block">{{clip_type[clip.clip_type]}}</p>
+                        <p class="help-block">{{clip.url_prefix}}{{clip.url}}</p>
+                        <p class="help-block">{{clip.source_filename}}</p>
+                    </ion-item>
+                </ion-list>
+
+                <ion-infinite-scroll
+                        ng-if="clipMore"
+                        on-infinite="loadMoreClip()">
+                </ion-infinite-scroll>
             </ion-content>
         </ion-modal-view>
     </script>

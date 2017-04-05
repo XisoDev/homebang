@@ -12,7 +12,7 @@
         </div>
         <ion-list>
             <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="content in contents" type="item-text-wrap" href="#/tab/content/{{content.content_srl}}">
-                <img ng-src="{{content.rep_img ? (content.rep_img | trustMainUrl) : './img/no_image.png'}}">
+                <img ng-src="{{content.rep_thumb ? (content.rep_thumb | trustMainUrl) : './img/no_image.png'}}">
                 <h2>{{content.title}}</h2>
                 <p ng-show="content.template">유형 : {{tpls1D[content.template].title}} / 타임라인 : {{tpls1D[content.template].sequence_count}}개</p>
                 <i class="icon ion-chevron-right icon-accessory"></i>

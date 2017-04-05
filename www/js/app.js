@@ -134,9 +134,10 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter
 
 })
 
-.filter('trustUrl', function($sce){
-    return function(path, url) {
-        if(!path || !url) return ;
+.filter('trustUrl', function($sce, CurrentChannel){
+    return function(path) {
+        if(!path) return ;
+        var url = CurrentChannel.get().data_server;
         return $sce.trustAsResourceUrl(url + path.substr(1));
     };
 })

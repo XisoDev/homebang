@@ -214,6 +214,22 @@ angular.module('starter.services', [])
     service.save = function(params){
         return XisoApi.send('content.procSaveByApp', params);
     };
+    service.update = function(params){
+        return XisoApi.send('content.procUpdateByApp', params);
+    };
+
+    return service;
+})
+
+.factory('Clip', function(XisoApi){
+    var service = {};
+
+    service.getList = function(params){
+        return XisoApi.send('file.dispFileList', params);
+    };
+    service.saveUrl = function(params){
+        return XisoApi.send('file.procSaveUrl', params);
+    };
 
     return service;
 })
@@ -238,11 +254,21 @@ angular.module('starter.services', [])
     }
 })
 
-.factory('XisoApi', function($http, Object){
+.factory('MainServer', function(){
     var service = {};
-    // var baseUrl = 'http://did.xiso.co.kr';
-    var baseUrl = '/api';
+    service.getUrl = function(){
+        return 'http://did.xiso.co.kr';
+    };
+    service.getApi = function(){
+        return '/api';
+    };
+    return service;
+})
 
+.factory('XisoApi', function($http, Object, MainServer){
+    var service = {};
+    // var baseUrl = MainServer.getApi();
+    var baseUrl = MainServer.getUrl();
     var finalUrl = '';
 
     service.send = function(action, params){
@@ -264,6 +290,14 @@ angular.module('starter.services', [])
     };
 
     return service;
+})
+
+.factory("Trans", function(){
+    return ['scale','rotate','fadeInLeft','fadeInRight','fadeInUp','fadeInDown']
+})
+
+.factory("UrlPrefix", function(){
+    return ['http://','https://','tel:','sms:','mailto:']
 })
 
 .factory("Tpl", function(){
