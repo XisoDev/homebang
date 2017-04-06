@@ -633,7 +633,12 @@ angular.module('starter.controllers', [])
             if(obj.error != "0") {
                 Toast(obj.message);
             }else {
-                if(obj.result) $scope.tempTimeline.push(obj.result);
+                if(obj.result) {
+                    obj.result.transition = $scope.upClip.transition;
+                    if(obj.result.clip_type != 'V') obj.result.duration = $scope.upClip.duration;
+                    
+                    $scope.tempTimeline.push(obj.result);
+                }
                 $scope.hideMdUpload();
             }
         }, function (error) {
@@ -710,7 +715,6 @@ angular.module('starter.controllers', [])
         }
     };
 
-
     $scope.clipList = function(){
         $scope.clipPage = 1;
         $scope.clipMore = true;
@@ -754,6 +758,7 @@ angular.module('starter.controllers', [])
     };
 
     $scope.selectClip = function(clip){
+        clip.transition = 'scale';  // 기본 전환효과 설정
         $scope.tempTimeline.push(clip);
         $scope.hideMdClip();
     };
@@ -817,6 +822,35 @@ angular.module('starter.controllers', [])
     };
     $scope.hideMdUpload = function() {
         $scope.mdUpload.hide();
+    };
+
+    // modal 클립 편집
+    $ionicModal.fromTemplateUrl('mdEdit', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdEdit = modal;
+    });
+    $scope.showMdEdit = function(clip){
+        $scope.modiClip = clip;
+        
+        $scope.mdEdit.show();
+    };
+    $scope.hideMdEdit = function() {
+        if(!$scope.modiClip.transition) {
+            Toast('전환효과를 선택해주세요.');
+            return false;
+        }
+        if(!$scope.modiClip.url_prefix || $scope.modiClip.url_prefix=='null') {
+            $scope.modiClip.url = null;
+        }else{
+            if(!$scope.modiClip.url || $scope.modiClip.url=='null') {
+                Toast('전환효과를 선택해주세요.');
+                return false;
+            }
+        }
+        
+        $scope.mdEdit.hide();
     };
 
     // modal 클립 선택

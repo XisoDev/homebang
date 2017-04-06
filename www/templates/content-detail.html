@@ -112,7 +112,7 @@
                         <div style="clear: both; padding-top:43px;"></div>
                         <ion-list show-delete="shouldShowDelete" show-reorder="shouldShowReorder" can-swipe="false">
                             <ion-item class="item-remove-animate item-thumbnail-left item-icon-right" ng-repeat="item in timeline">
-                                <img ng-src="{{item.thumb_filename ? (item.thumb_filename | trustUrl) : './img/url.png'}}" ng-click="showTimeEdit(play_list)">
+                                <img ng-src="{{item.thumb_filename ? (item.thumb_filename | trustUrl) : './img/url.png'}}" ng-click="showMdEdit(item)">
                                 <h2>
                                     {{item.title}}
                                 </h2>
@@ -224,12 +224,74 @@
                     <label class="item item-input" ng-if="upClip.url_prefix">
                         <span class="input-label">링크</span>
                         <span style="color:gray;">{{upClip.url_prefix}}</span>
-                        <input type="text" placeholder="(예) softgear.co.kr, 01012345678, master@softgear.co.kr, ..." ng-model="upClip.url">
+                        <input type="text" placeholder="softgear.co.kr (예)" ng-model="upClip.url">
                     </label>
                 </div>
                 <div class="padding">
                     <button class="button button-block button-positive button-small" ng-click="saveClip()">
                         완료
+                    </button>
+                </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
+
+    <!--modal clip edit-->
+    <script id="mdEdit" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdEdit()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+                <h1 class="title">타임라인 수정</h1>
+            </ion-header-bar>
+            <ion-content>
+                <div class="padding">
+                    <p class="help-block">타임라인의 정보를 수정합니다.</p>
+                </div>
+                <div class="list card">
+                    <div class="item item-image" ng-if="modiClip.clip_type != 'U'">
+                        <img ng-src="{{modiClip.uploaded_filename | trustUrl}}" ng-if="modiClip.clip_type == 'I'">
+                        <video controls width="100%" ng-if="modiClip.clip_type == 'V'">
+                            <source ng-src="{{modiClip.uploaded_filename | trustUrl}}" type="video/mp4">
+                            비디오플레이가 지원되지 않습니다. 브라우저를 업데이트하세요.
+                        </video>
+                    </div>
+                    <label class="item item-input">
+                        <span class="input-label">클립 명</span>
+                        <input type="text" placeholder="클립 명" ng-model="modiClip.title" >
+                    </label>
+                    <label class="item item-input">
+                        <span class="input-label">타입</span>
+                        <span style="color:gray;">{{clip_type[modiClip.clip_type]}}</span>
+                    </label>
+                    <label class="item item-input">
+                        <span class="input-label">러닝 타임 (초)</span>
+                        <span ng-show="modiClip.clip_type == 'V'" style="color:gray;">{{modiClip.duration}}</span>
+                        <input ng-show="modiClip.clip_type != 'V'" type="number" placeholder="러닝타임(초)" ng-model="modiClip.duration" />
+                    </label>
+                    <label class="item item-input item-select">
+                        <span class="input-label">전환 효과</span>
+                        <select ng-model="modiClip.transition">
+                            <option ng-repeat="tran in trans" value="{{tran}}">{{tran}}</option>
+                        </select>
+                    </label>
+                    <label class="item item-input item-select">
+                        <span class="input-label">링크 종류</span>
+                        <select ng-model="modiClip.url_prefix">
+                            <option value="">없음</option>
+                            <option ng-repeat="up in url_prefix" value="{{up}}">{{up}}</option>
+                        </select>
+                    </label>
+                    <label class="item item-input" ng-if="modiClip.url_prefix">
+                        <span class="input-label">링크</span>
+                        <span style="color:gray;">{{modiClip.url_prefix}}</span>
+                        <input type="text" placeholder="softgear.co.kr (예)" ng-model="modiClip.url">
+                    </label>
+                </div>
+                <div class="padding">
+                    <button class="button button-block button-small" ng-click="hideMdEdit()">
+                        닫기
                     </button>
                 </div>
             </ion-content>
