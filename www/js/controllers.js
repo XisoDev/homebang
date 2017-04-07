@@ -52,7 +52,7 @@ angular.module('starter.controllers', [])
     };
 
     $scope.getList = function(){
-        Player.getList({page : $scope.page, ch_id : CurrentChannel.get().ch_id}).then(function(res){
+        Player.getList({page : $scope.page, ch_id : CurrentChannel.get().ch_id, did_mode : true}).then(function(res){
             $scope.devices = res.list;
         });
     };
@@ -355,6 +355,7 @@ angular.module('starter.controllers', [])
     $scope.url_prefix = UrlPrefix;
 
     $scope.server_url = CurrentChannel.get().data_server;
+    $scope.showNotice = false;
     
     $scope.clipPage = 1;
     $scope.clipMore = true;
@@ -373,6 +374,12 @@ angular.module('starter.controllers', [])
                 }else{
                     $scope.params.checked_public = false;
                 }
+
+                if($scope.tpls1D[$scope.params.template].is_notice=='Y'){
+                    $scope.showNotice = true;
+                }
+
+                if(!$scope.params.notices) $scope.params.notices = [];
             }else{
                 Toast(res.message);
             }
@@ -390,12 +397,14 @@ angular.module('starter.controllers', [])
                 if (res) {
                     $scope.params.template = null;
                     $scope.showTpltab = 'live';
+                    $scope.showNotice = false;
                     $scope.showMdTemplate();
                 }
             });
         }else{
             $scope.params.template = null;
             $scope.showTpltab = 'live';
+            $scope.showNotice = false;
             $scope.showMdTemplate();
         }
     };
@@ -403,6 +412,12 @@ angular.module('starter.controllers', [])
     // 템플릿 종류를 선택한다
     $scope.changeTpl = function(key, val){
         $scope.params.template = key;
+        if(val.is_notice=='Y'){
+            $scope.showNotice = true;
+        }else{
+            $scope.showNotice = false;
+            $scope.params.notices = [];
+        }
         $scope.params.timelines = [];
         for(var i=0; i < val.sequence_count; i++){
             $scope.params.timelines[i] = [];
@@ -865,6 +880,31 @@ angular.module('starter.controllers', [])
     };
     $scope.hideMdClip = function() {
         $scope.mdClip.hide();
+    };
+
+    // modal 공지사항 추가
+    $ionicModal.fromTemplateUrl('mdNotice', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdNotice = modal;
+    });
+    $scope.showMdNotice = function(){
+        $scope.notice = {};
+        $scope.mdNotice.show();
+    };
+    $scope.hideMdNotice = function() {
+        $scope.mdNotice.hide();
+    };
+
+    // modal 에서 공지사항 추가 완료
+    $scope.addNotice = function(){
+        if(!$scope.notice.content) return Toast('공지사항 내용을 입력하세요.');
+        if(!$scope.notice.url_prefix) return Toast('링크 종류을 선택하세요.');
+        if(!$scope.notice.url) return Toast('링크 내용을 입력하세요.');
+
+        $scope.params.notices.push($scope.notice);
+        $scope.hideMdNotice();
     };
 
     $scope.goState = function(state_name){

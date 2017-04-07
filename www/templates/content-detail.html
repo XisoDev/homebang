@@ -16,6 +16,7 @@
         <div class="button-bar padding">
             <a ng-click="goTab('info')" ng-class="{'button-royal' : showTab == 'info'}" class="button button-small">기본정보</a>
             <a ng-click="goTab('timeline')" ng-class="{'button-royal' : showTab == 'timeline'}" class="button button-small">타임라인</a>
+            <a ng-click="goTab('notice')" ng-class="{'button-royal' : showTab == 'notice'}" class="button button-small" ng-if="showNotice">공지사항</a>
         </div>
 
         <div class="padding" ng-if="showTab == 'info'">
@@ -138,9 +139,41 @@
                 </ion-slide-box>
             </tab-slide-box>
         </div>
+        <div class="padding" ng-if="showTab == 'notice'">
+            <ion-slide-box show-pager="false">
+                <ion-slide>
+                    <ion-header-bar class="bar-positive">
+                        <div class="buttons">
+                            <button class="button button-icon icon ion-ios-minus-outline" ng-click="shouldShowDelete = !shouldShowDelete; shouldShowReorder = false"></button>
+                        </div>
+                        <h5 class="title">공지사항</h5>
+                        <div class="buttons">
+                            <button class="button" ng-click="shouldShowDelete = false; shouldShowReorder = !shouldShowReorder">순서변경</button>
+                        </div>
+                    </ion-header-bar>
+                    <div style="clear: both; padding-top:43px;"></div>
+                    <ion-list show-delete="shouldShowDelete" show-reorder="shouldShowReorder" can-swipe="false">
+                        <ion-item class="item-remove-animate item-icon-right" ng-repeat="item in params.notices">
+                            <h2>
+                                {{item.content}}
+                            </h2>
+                            <p class="help-block" ng-if="item.url_prefix && item.url && item.url_prefix!='null' && item.url!='null'">
+                                {{item.url_prefix}}{{item.url}}
+                            </p>
+
+                            <ion-delete-button class="ion-minus-circled" ng-click="params.notices.splice($index, 1)"></ion-delete-button>
+                            <ion-reorder-button class="ion-navicon" on-reorder="moveItem(params.notices, item, $fromIndex, $toIndex)"></ion-reorder-button>
+                        </ion-item>
+                        <ion-item ng-click="showMdNotice()">
+                            <i class="icon ion-ios-plus-empty"></i> 공지사항 추가
+                        </ion-item>
+                    </ion-list>
+                </ion-slide>
+            </ion-slide-box>
+        </div>
         <div class="padding">
             <button class="button button-block button-positive button-small"  ng-click="saveContent()">
-                기본 정보와 타임라인을 저장합니다
+                모든 정보를 저장합니다
             </button>
         </div>
     </ion-content>
@@ -268,7 +301,7 @@
                     <label class="item item-input">
                         <span class="input-label">러닝 타임 (초)</span>
                         <span ng-show="modiClip.clip_type == 'V'" style="color:gray;">{{modiClip.duration}}</span>
-                        <input ng-show="modiClip.clip_type != 'V'" type="number" placeholder="러닝타임(초)" ng-model="modiClip.duration" />
+                        <input ng-show="modiClip.clip_type != 'V'" type="text" placeholder="러닝타임(초)" ng-model="modiClip.duration" />
                     </label>
                     <label class="item item-input item-select">
                         <span class="input-label">전환 효과</span>
@@ -328,6 +361,46 @@
                         ng-if="clipMore"
                         on-infinite="loadMoreClip()">
                 </ion-infinite-scroll>
+            </ion-content>
+        </ion-modal-view>
+    </script>
+
+    <!--modal add Notice-->
+    <script id="mdNotice" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdNotice()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+                <h1 class="title">공지사항 추가</h1>
+            </ion-header-bar>
+            <ion-content>
+                <div class="padding">
+                    <p class="help-block">새로운 공지사항을 추가합니다.</p>
+                </div>
+                <div class="list card">
+                    <label class="item item-input">
+                        <span class="input-label">공지사항 내용</span>
+                        <input type="text" placeholder="공지사항 내용" ng-model="notice.content" >
+                    </label>
+                    <label class="item item-input item-select">
+                        <span class="input-label">링크 종류</span>
+                        <select ng-model="notice.url_prefix">
+                            <option value="">선택</option>
+                            <option ng-repeat="up in url_prefix" value="{{up}}">{{up}}</option>
+                        </select>
+                    </label>
+                    <label class="item item-input">
+                        <span class="input-label">링크</span>
+                        <span style="color:gray;">{{notice.url_prefix}}</span>
+                        <input type="text" placeholder="softgear.co.kr (예)" ng-model="notice.url">
+                    </label>
+                </div>
+                <div class="padding">
+                    <button class="button button-block button-positive button-small" ng-click="addNotice()">
+                        완료
+                    </button>
+                </div>
             </ion-content>
         </ion-modal-view>
     </script>
