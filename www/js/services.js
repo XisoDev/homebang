@@ -346,8 +346,8 @@ angular.module('starter.services', [])
 
 .factory('XisoApi', function($http, Object, MainServer){
     var service = {};
-    var baseUrl = MainServer.getApi();
-    // var baseUrl = MainServer.getUrl();
+    // var baseUrl = MainServer.getApi();
+    var baseUrl = MainServer.getUrl();
     var finalUrl = '';
 
     service.send = function(action, params){

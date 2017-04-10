@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter.services', 'tabSlideBox'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, $rootScope, $ionicPopup) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -21,6 +21,32 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter
       StatusBar.styleDefault();
     }
   });
+
+    //back button action
+    $ionicPlatform.registerBackButtonAction(function(e) {
+
+        e.preventDefault();
+
+        $rootScope.exitApp = function() {
+            $ionicPopup.confirm({
+                title: "<strong>앱을 종료할까요?</strong>",
+                template: '확인하시면 앱을 종료할 수 있습니다.',
+                buttons: [
+                    { text: '취소' },
+                    {
+                        text: '<b>종료</b>',
+                        type: 'button-positive',
+                        onTap: function(e) {
+                            ionic.Platform.exitApp();
+                        }
+                    }
+                ]
+            });
+        };
+        $rootScope.exitApp();
+
+        return false;
+    }, 101);
 })
 
 .config(['$ionicConfigProvider', function($ionicConfigProvider) {
