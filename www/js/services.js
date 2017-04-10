@@ -83,13 +83,13 @@ angular.module('starter.services', [])
   };
 })
 
-.factory('Auth', function(Member, Toast) {
+.factory('Auth', function(Member) {
     var self = this;
 
     self.isLogged = function(){
         Member.getLoggedInfo().then(function(res){
-            console.log(res);
             if(res.error==0){
+                self.logged_info = res.result;
                 return true;
             }else{
                 return false;
@@ -138,6 +138,48 @@ angular.module('starter.services', [])
         console.log(channel);
         window.localStorage['channel'] = JSON.stringify(channel);
     };
+    self.change = function(channel){
+        Channel.getChannelContent(channel).then(function (res) {
+            console.log(res);
+            if (res.error == 0) {
+                var result = res.result;
+                Channel.getUsedSpace(result).then(function (res2) {
+                    console.log(res2);
+                    if (res2.used_space) {
+                        result.used_space = res2.used_space / 1024 / 1024;
+                    } else {
+                        result.used_space = 0;
+                    }
+
+                    self.set(result);
+                    document.location.reload();
+                });
+            } else {
+                self.set({});
+            }
+        });
+    };
+    self.changeAdmin = function(){
+        Channel.getChannelAdmin().then(function (res) {
+            console.log(res);
+            if (res.error == 0) {
+                var result = res.result;
+                Channel.getUsedSpace(result).then(function (res2) {
+                    console.log(res2);
+                    if (res2.used_space) {
+                        result.used_space = res2.used_space / 1024 / 1024;
+                    } else {
+                        result.used_space = 0;
+                    }
+
+                    self.set(result);
+                    document.location.reload();
+                });
+            } else {
+                self.set({});
+            }
+        });
+    };
     self.init = function(){
         if(!window.localStorage['channel']) {
             console.log('채널이 없자나');
@@ -169,6 +211,12 @@ angular.module('starter.services', [])
 
     service.getChannelByMemberSrl = function(){
         return XisoApi.send('channel.getChannelByMemberSrl');
+    };
+    service.getChannelContent = function(params){
+        return XisoApi.send('channel.getChannelContent', params);
+    };
+    service.getChannelAdmin = function(){
+        return XisoApi.send('channel.getChannelAdmin');
     };
     service.getUsedSpace = function(params){
         return XisoApi.send('channel.getUsedSpace', params);
@@ -229,6 +277,37 @@ angular.module('starter.services', [])
     };
     service.saveUrl = function(params){
         return XisoApi.send('file.procSaveUrl', params);
+    };
+
+    return service;
+})
+
+.factory('Agreement', function(XisoApi){
+    var service = {};
+
+    service.getAgreement = function(){
+        return XisoApi.send('config.getConfig', {name : 'homebang_agreement'});
+    };
+    service.getPrivacy = function(){
+        return XisoApi.send('config.getConfig', {name : 'homebang_privacy'});
+    };
+
+    return service;
+})
+
+.factory('Browser', function(){
+    var service = this;
+
+    service.openInExternalBrowser = function(url){ // Open in external browser
+        window.open(url,'_system','location=yes');
+    };
+
+    service.openInAppBrowser = function(url){ // Open in app browser
+        window.open(url,'_blank', 'closebuttoncaption=닫기, location=no, zoom=no');
+    };
+
+    service.openCordovaWebView = function(url){ // Open cordova webview if the url is in the whitelist otherwise opens in app browser
+        window.open(url,'_self');
     };
 
     return service;

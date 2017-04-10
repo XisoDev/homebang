@@ -1,6 +1,8 @@
 angular.module('starter.controllers', [])
 
-.controller('dashCtrl', function($scope,$state,$ionicModal,Channel,CurrentChannel,Toast) {
+.controller('dashCtrl', function($scope,$state,$ionicModal,Channel,CurrentChannel,Toast, Browser) {
+    $scope.browser = Browser;
+
     $scope.init = function(){
         $scope.params = {};
         $scope.getChannel();
@@ -44,16 +46,58 @@ angular.module('starter.controllers', [])
 })
 
 .controller('deviceCtrl', function($scope,Devices,$state,$ionicModal, Player, Toast, CurrentChannel) {
+    $scope.devicePage = 1;
+    $scope.deviceMore = true;
+    $scope.showTab = 'all';
+    $scope.did_mode = 'A';
+
     $scope.init = function(){
         $scope.params = {};
-        $scope.page = 1;
+        $scope.devicePage = 1;
+        $scope.devices = [];
 
         $scope.getList();
     };
 
+    $scope.goTab = function(tab_name){
+        $scope.showTab = tab_name;
+
+        if($scope.showTab=='all') {
+            $scope.did_mode = 'A';
+        }else if($scope.showTab=='tv_cast'){
+            $scope.did_mode = 'Y';
+        }else{
+            $scope.did_mode = 'N';
+        }
+
+        $scope.init();
+    };
+
     $scope.getList = function(){
-        Player.getList({page : $scope.page, ch_id : CurrentChannel.get().ch_id, did_mode : true}).then(function(res){
-            $scope.devices = res.list;
+        Player.getList({page : $scope.devicePage, ch_id : CurrentChannel.get().ch_id, did_mode : $scope.did_mode}).then(function(res){
+            if(res.list) {
+                $scope.devices = res.list;
+                $scope.devicePage++;
+            }
+        });
+    };
+
+    $scope.loadMoreDevice = function(){
+        if($scope.devicePage == 1){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            return;
+        }
+
+        Player.getList({page : $scope.devicePage, ch_id : CurrentChannel.get().ch_id, did_mode : $scope.did_mode}).then(function(res){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            if(res.list) {
+                for(var key in res.list){
+                    $scope.devices.push(res.list[key]);
+                }
+                $scope.devicePage++;
+            }else{
+                $scope.deviceMore = false;
+            }
         });
     };
 
@@ -375,8 +419,10 @@ angular.module('starter.controllers', [])
                     $scope.params.checked_public = false;
                 }
 
-                if($scope.tpls1D[$scope.params.template].is_notice=='Y'){
-                    $scope.showNotice = true;
+                if($scope.params.template) {
+                    if ($scope.tpls1D[$scope.params.template].is_notice == 'Y') {
+                        $scope.showNotice = true;
+                    }
                 }
 
                 if(!$scope.params.notices) $scope.params.notices = [];
@@ -914,9 +960,21 @@ angular.module('starter.controllers', [])
     $scope.init();
 })
 
-.controller('loginCtrl', function($scope, $state, Member, Toast, CurrentChannel) {
+.controller('loginCtrl', function($scope, $state, Member, Toast, CurrentChannel, Browser, Agreement) {
+    $scope.browser = Browser;
     $scope.params = {};
     $scope.agreement = {};
+
+    $scope.agrees = {};
+
+    Agreement.getAgreement().then(function(res){
+        // console.log(res);
+        $scope.agrees.agreement = res.config;
+    });
+    Agreement.getPrivacy().then(function(res){
+        // console.log(res);
+        $scope.agrees.privacy = res.config;
+    });
 
     $scope.login = function(){
         Member.login($scope.params).then(function(res){
@@ -938,15 +996,11 @@ angular.module('starter.controllers', [])
     };
 })
 
-.controller('settingsCtrl', function($scope, $state, $ionicHistory, Member, Toast) {
-    $scope.goState = function(state_name){
-        if(state_name == "back"){
-            console.log($ionicHistory);
-            $ionicHistory.goBack(-1);
-        }else{
-            $state.go(state_name);
-        }
-    };
+.controller('settingsCtrl', function($scope, $state, $ionicHistory, Member, Toast, $ionicModal, Channel, CurrentChannel, Browser) {
+    $scope.browser = Browser;
+    $scope.logged_info = {};
+    $scope.channelPage = 1;
+    $scope.channelMore = true;
 
     $scope.shouldShowDelete = false;
     $scope.shouldShowReorder = false;
@@ -960,6 +1014,92 @@ angular.module('starter.controllers', [])
                 $scope.goState('login');
             }
         });
+    };
+
+    // modal 접속채널 변경
+    $ionicModal.fromTemplateUrl('mdChannel', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdChannel = modal;
+    });
+    $scope.showMdChannel = function(){
+        $scope.channelPage = 1;
+        $scope.channelMore = true;
+        $scope.channels = [];
+
+        Member.getLoggedInfo().then(function(res2){
+            $scope.logged_info = res2.variables.member_info;
+
+            Channel.getList({page : $scope.channelPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+                if(res.error==0) {
+                    $scope.channels = res.list;
+                    $scope.mdChannel.show();
+                    $scope.channelPage++;
+                }else{
+                    Toast(res.message);
+                }
+            });
+        });
+
+        $scope.mdChannel.show();
+    };
+    $scope.hideMdChannel = function() {
+        $scope.mdChannel.hide();
+        document.location.reload();
+    };
+
+    // Execute action on hide modal
+    $scope.$on('modal.hidden', function() {
+        // Execute action
+        console.log('modal hidden');
+        // document.location.reload();
+    });
+
+    $scope.selectChannel = function(channel) {
+        CurrentChannel.change(channel);
+
+        $scope.mdChannel.hide();
+    };
+    
+    $scope.selectAdminChannel = function(){
+        CurrentChannel.changeAdmin();
+        
+        $scope.mdChannel.hide();
+    };
+
+    $scope.loadMoreChannel = function(){
+        if($scope.channelPage == 1) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            return;
+        }
+
+        Channel.getList({page : $scope.channelPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            if(res.error==0) {
+                if(res.list) {
+                    for (var key in res.list) {
+                        $scope.channels.push(res.list[key]);
+                    }
+                    $scope.mdChannel.show();
+                    $scope.channelPage++;
+                }else{
+                    $scope.channelMore = false;
+                }
+            }else{
+                $scope.channelMore = false;
+                Toast(res.message);
+            }
+        });
+    };
+
+    $scope.goState = function(state_name){
+        if(state_name == "back"){
+            console.log($ionicHistory);
+            $ionicHistory.goBack(-1);
+        }else{
+            $state.go(state_name);
+        }
     };
 });
 

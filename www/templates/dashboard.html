@@ -13,7 +13,7 @@
       <div class="channel_info">
         <h2>채널정보</h2>
         <div class="channel_thumbnail">
-          <img ng-src="{{params.rep_img | trustMainUrl}}" width="100%" />
+          <img ng-src="{{params.rep_img ? (params.rep_img | trustMainUrl) : './img/no_content.jpg'}}" width="100%" />
         </div>
         <h3 ng-click="showMdTitle()">
           {{params.title}}
@@ -29,7 +29,7 @@
         <p>
           전문인력이 빠르고 정확하게 디자인해드립니다.
         </p>
-        <a href="#">신청하기
+        <a ng-click="browser.openInAppBrowser('http://softgear.co.kr')">신청하기
           <i class="xi-angle-right"></i>
         </a>
       </div>
@@ -39,9 +39,12 @@
       <div class="design_banner">
         <i class="xi-security"></i> 채널정보
       </div>
-      <div class="col">
+      <div class="col" ng-if="params.ch_srl > 0">
         <p> 분류 : {{params.category}} </p>
         <p> 채널코드 : {{params.ch_id}} </p>
+      </div>
+      <div class="col" ng-if="!params.ch_srl">
+        <p> 관리자용 통합 채널입니다. </p>
       </div>
     </div>
 
@@ -50,7 +53,7 @@
         <i class="xi-server-network"></i> 서버 사용량
       </div>
       <div class="col">
-        <p> {{params.used_space | number:1}}M / {{params.limit | number:1 }}M </p>
+        <p> {{params.used_space | number:1}}M / <b ng-show="params.limit">{{params.limit | number:1 }}M</b><b ng-show="!params.limit">무제한</b> </p>
         <a href="#">용량을 추가할까요? </a>
       </div>
     </div>
