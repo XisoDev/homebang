@@ -21,6 +21,19 @@
         </h3>
       </div>
 
+      <div class="informationbox">
+          <div class="design_banner">
+              <i class="xi-security"></i> 채널정보
+          </div>
+          <div class="col" ng-if="params.ch_srl > 0">
+              <p> 분류 : {{params.category}} </p>
+              <p> 채널코드 : {{params.ch_id}} </p>
+          </div>
+          <div class="col" ng-if="!params.ch_srl">
+              <p> 관리자용 통합 채널입니다. </p>
+          </div>
+      </div>
+
     <div class="informationbox">
       <div class="design_banner">
         컨텐츠 디자인이 필요하세요?
@@ -32,19 +45,6 @@
         <a ng-click="browser.openInAppBrowser('http://softgear.co.kr')">신청하기
           <i class="xi-angle-right"></i>
         </a>
-      </div>
-    </div>
-
-    <div class="informationbox">
-      <div class="design_banner">
-        <i class="xi-security"></i> 채널정보
-      </div>
-      <div class="col" ng-if="params.ch_srl > 0">
-        <p> 분류 : {{params.category}} </p>
-        <p> 채널코드 : {{params.ch_id}} </p>
-      </div>
-      <div class="col" ng-if="!params.ch_srl">
-        <p> 관리자용 통합 채널입니다. </p>
       </div>
     </div>
 

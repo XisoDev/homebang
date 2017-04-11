@@ -741,6 +741,7 @@ angular.module('starter.controllers', [])
                         break;
                     case 2:
                         $scope.upClip.clip_type = 'U';
+                        $scope.upClip.url_prefix = 'http://';
                         $scope.showMdUpload();
                         break;
                     case 3:
@@ -894,6 +895,10 @@ angular.module('starter.controllers', [])
     });
     $scope.showMdEdit = function(clip){
         $scope.modiClip = clip;
+        if(clip.url_prefix == 'null' || clip.url == 'null') {
+            clip.url_prefix = null;
+            clip.url = null;
+        }
         
         $scope.mdEdit.show();
     };
