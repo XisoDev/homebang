@@ -988,7 +988,7 @@ angular.module('starter.controllers', [])
             if(res.error == 0){
                 console.log('channel init 실행');
                 CurrentChannel.init(); // 접속한 계정의 기본 채널정보를 세팅
-                $state.go('agreement');
+                $state.go('tab.dash');
             }
         });
     };
@@ -997,7 +997,25 @@ angular.module('starter.controllers', [])
         if(!$scope.agreement.service) return Toast('서비스 이용약관에 동의해주세요.');
         if(!$scope.agreement.privacy) return Toast('개인정보 보호 및 취급방침에 동의해주세요.');
 
-        $state.go('tab.dash');
+        $scope.params = {};
+
+        $state.go('signup');
+    };
+
+    $scope.signup = function(){
+        Member.signUp($scope.params).then(function(res){
+            // console.log(res);
+            Toast(res.message);
+
+            if(res.error == 0){
+                $state.go('login');
+            }
+
+        });
+    };
+
+    $scope.goState = function(state_name){
+        $state.go(state_name);
     };
 })
 

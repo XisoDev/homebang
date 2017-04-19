@@ -138,6 +138,42 @@ a{
   background:rgba(23,117,189,.8) !important;
 }
 
+.signForm{
+    background:transparent;
+}
+
+.signForm .input-label{
+    color:#ddd;
+}
+
+.signForm .item,
+.signForm .item input,
+.signForm .item textarea,
+.signForm .item select{
+    background:transparent;
+    border:none;
+    color:#FFF;
+    font-size:16px;
+    padding-bottom:5px;
+}
+
+.signForm .item{
+    border-bottom:1px dashed #555;
+    padding-left:0;
+}
+
+.signForm .item i{
+    color:#FFF;
+    font-size:20px;
+    padding-right:10px;
+}
+
+.signForm button{
+    border-radius:0px;
+    font-size:12px;
+    background:rgba(23,117,189,.8) !important;
+}
+
 .linkbox{
   margin-top:30px;
   text-align:center;

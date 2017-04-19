@@ -1,0 +1,61 @@
+<div id="loginWrap" class="move">
+    <button id="backbutton" class="button-small button button-royal wow fadeInDown" ng-click="goState('login')">
+        <i class="xi-angle-left"></i>
+        뒤로
+    </button>
+    <div id="login">
+        <h1 class="softgearSmall wow fadeInDown">
+            <small>soft</small>
+            <b>GEAR</b>
+        </h1>
+
+        <div class="list wow signForm fadeInDown" data-wow-delay="0.5s" style="background:transparent;">
+            <h2 class="blackBGTitle">가입 정보 입력</h2>
+            <div style="margin:20px;">
+                <label class="item item-input">
+                    <i class="xi-security"></i>&nbsp;
+                    <input type="text" ng-model="params.user_id" placeholder="아이디">
+                </label>
+                <label class="item item-input">
+                    <i class="xi-key"></i>&nbsp;
+                    <input type="password" ng-model="params.password" placeholder="비밀번호">
+                </label>
+                <label class="item item-input">
+                    <i class="xi-check"></i>&nbsp;
+                    <input type="password" ng-model="params.password2" placeholder="비밀번호 확인">
+                </label>
+                <label class="item item-input">
+                    <i class="xi-user"></i>&nbsp;
+                    <input type="text" ng-model="params.user_name" placeholder="이름">
+                </label>
+                <label class="item item-input">
+                    <i class="xi-call"></i>&nbsp;
+                    <input type="text" ng-model="params.ch_pwd" placeholder="연락처">
+                </label>
+                <label class="item item-input item-select" style="padding:12px 0 11px;">
+                    <i class="xi-angle-right-min"></i>&nbsp;
+                    <select ng-model="params.category">
+                        <option value="">채널 카테고리 선택</option>
+                        <option value="게임">게임</option>
+                        <option value="엔터테인먼트">엔터테인먼트</option>
+                        <option value="경제">경제</option>
+                        <option value="쇼핑">쇼핑</option>
+                    </select>
+                </label>
+                <label class="item item-input">
+                    <i class="xi-angle-right-min"></i>&nbsp;
+                    <input type="text" ng-model="params.ch_title" placeholder="채널 명">
+                </label>
+                <label class="item item-input">
+                    <i class="xi-angle-right-min"></i>&nbsp;
+                    <textarea ng-model="params.ch_desc" rows="3" placeholder="채널 설명"></textarea>
+                </label>
+
+                <button class="button button-block button-assertive" ng-click="signup()">
+                    <i class="xi-check"></i>
+                    회원 가입
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

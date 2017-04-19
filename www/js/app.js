@@ -152,6 +152,11 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter
       url: '/agreement',
       templateUrl: 'templates/login_agreement.html',
       controller: 'loginCtrl'
+  })
+  .state('signup', {
+      url: '/signup',
+      templateUrl: 'templates/signup.html',
+      controller: 'loginCtrl'
   });
 
   // if none of the above states are matched, use this as the fallback
@@ -168,9 +173,9 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter
     };
 })
 
-.filter('trustMainUrl', function($sce){
+.filter('trustMainUrl', function($sce, MainServer){
     return function(path) {
         if(!path) return ;
-        return $sce.trustAsResourceUrl('http://did.xiso.co.kr' + path.substr(1));
+        return $sce.trustAsResourceUrl(MainServer.getUrl() + path.substr(1));
     };
 });

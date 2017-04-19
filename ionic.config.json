@@ -4,11 +4,11 @@
   "proxies": [
     {
       "path": "/api",
-      "proxyUrl": "http://did.xiso.co.kr"
+      "proxyUrl": "http://live.softgear.kr"
     },
     {
       "path": "/api2",
-      "proxyUrl": "http://did-data.xiso.co.kr"
+      "proxyUrl": "http://onair.softgear.kr"
     }
   ]
 }

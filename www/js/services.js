@@ -124,6 +124,9 @@ angular.module('starter.services', [])
     service.logout = function() {
         return XisoApi.send('member.procLogout');
     };
+    service.signUp = function(params) {
+        return XisoApi.send('member.procSignUp', params);
+    };
 
     return service;
 })
@@ -336,7 +339,7 @@ angular.module('starter.services', [])
 .factory('MainServer', function(){
     var service = {};
     service.getUrl = function(){
-        return 'http://did.xiso.co.kr';
+        return 'http://live.softgear.kr';
     };
     service.getApi = function(){
         return '/api';
