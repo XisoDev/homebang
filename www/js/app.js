@@ -178,4 +178,32 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter
         if(!path) return ;
         return $sce.trustAsResourceUrl(MainServer.getUrl() + path.substr(1));
     };
+})
+.filter('filesize', function(){
+    return function(filesize) {
+
+        if(!filesize)
+        {
+            return '0Byte';
+        }
+
+        if(filesize === 1)
+        {
+            return '1Byte';
+        }
+
+        if(filesize < 1024)
+        {
+            return filesize + 'Bytes';
+        }
+
+        if(filesize >= 1024 && filesize < 1024 * 1024)
+        {
+            var num = filesize / 1024;
+            return num.toFixed(1) + 'KB';
+        }
+
+        var num = filesize / (1024 * 1024);
+        return num.toFixed(2) + "MB";
+    };
 });

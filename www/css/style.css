@@ -93,13 +93,16 @@ a{
   font-size:12px;
 }
 .softgearBig{
-  background:rgba(23,117,189,.8);
+  /*background:rgba(23,117,189,.8);*/
+    background:url('../img/icon.png');
+    background-size:100%;
   color:#eee;
   text-align:right;
   padding:32px 20px;
-  border:1px solid #1775bd;
+  /*border:1px solid #1775bd;*/
   margin:0 auto;
   width:150px;
+  height:150px;
 }
 .softgearBig small{
   display:block;

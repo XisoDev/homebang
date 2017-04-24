@@ -2,7 +2,7 @@
   <ion-content>
     <div class="softgearHeader">
       <span class="pull-left">
-        <button class="button button-small"><i class="xi-network-home"></i> 홈방</button>
+        <button class="button button-small" ng-click="showMdChannel()"><i class="xi-exchange"></i> 채널변경</button>
       </span>
       대시보드
       <span class="pull-right">
@@ -34,6 +34,16 @@
           </div>
       </div>
 
+      <div class="informationbox">
+          <div class="design_banner">
+              <i class="xi-server-network"></i> 서버 사용량
+          </div>
+          <div class="col">
+              <p> {{params.used_space | number:1}}M / <b ng-show="params.limit">{{params.limit | number:1 }}M</b><b ng-show="!params.limit">무제한</b> </p>
+              <a href="#">용량을 추가할까요? </a>
+          </div>
+      </div>
+
     <div class="informationbox">
       <div class="design_banner">
         컨텐츠 디자인이 필요하세요?
@@ -45,16 +55,6 @@
         <a ng-click="browser.openInAppBrowser('http://softgear.co.kr')">신청하기
           <i class="xi-angle-right"></i>
         </a>
-      </div>
-    </div>
-
-    <div class="informationbox">
-      <div class="design_banner">
-        <i class="xi-server-network"></i> 서버 사용량
-      </div>
-      <div class="col">
-        <p> {{params.used_space | number:1}}M / <b ng-show="params.limit">{{params.limit | number:1 }}M</b><b ng-show="!params.limit">무제한</b> </p>
-        <a href="#">용량을 추가할까요? </a>
       </div>
     </div>
   </ion-content>
@@ -81,6 +81,37 @@
                         저장
                     </button>
                 </div>
+            </ion-content>
+        </ion-modal-view>
+    </script>
+
+
+    <!--modal channel-->
+    <script id="mdChannel" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">접속 채널 변경</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdChannel()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <ion-list>
+                    <ion-item class="item-icon-right" ng-if="logged_info.is_admin=='Y'" type="item-text-wrap" ng-click="selectAdminChannel()">
+                        <h2>관리자용 통합 채널</h2>
+                        <p>최고 관리자만 선택 할 수 있는 채널입니다.</p>
+                        <i class="icon ion-chevron-right icon-accessory"></i>
+                    </ion-item>
+                    <ion-item class="item-icon-right" ng-repeat="channel in channels" type="item-text-wrap" ng-click="selectChannel(channel)">
+                        <h2>{{channel.title}}</h2>
+                        <p>{{channel.ch_id}}&nbsp;&nbsp;/&nbsp;&nbsp;{{channel.category}}&nbsp;&nbsp;/&nbsp;&nbsp;{{channel.limit}}M&nbsp;&nbsp;/&nbsp;&nbsp;{{channel.is_free == 'Y' ? '무료' : '유료'}}</p>
+                        <i class="icon ion-chevron-right icon-accessory"></i>
+                    </ion-item>
+                </ion-list>
+                <ion-infinite-scroll
+                        ng-if="channelMore"
+                        on-infinite="loadMoreChannel()">
+                </ion-infinite-scroll>
             </ion-content>
         </ion-modal-view>
     </script>

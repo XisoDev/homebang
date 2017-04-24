@@ -47,7 +47,7 @@
                         <select ng-model="params.clock">
                             <option value="N">없음</option>
                             <option value="T">상단</option>
-                            <option value="M">중단</option>
+                            <option value="M">중앙</option>
                             <option value="B">하단</option>
                         </select>
                     </label>
@@ -114,12 +114,8 @@
                         <ion-list show-delete="shouldShowDelete" show-reorder="shouldShowReorder" can-swipe="false">
                             <ion-item class="item-remove-animate item-thumbnail-left item-icon-right" ng-repeat="item in timeline">
                                 <img ng-src="{{item.thumb_filename ? (item.thumb_filename | trustUrl) : './img/url.png'}}" ng-click="showMdEdit(item)">
-                                <h2>
-                                    {{item.title}}
-                                </h2>
-                                <p class="help-block">
-                                    {{clip_type[item.clip_type]}}
-                                </p>
+                                <h2><span style="color:#666; font-size:12px;">{{clip_type[item.clip_type]}}</span> {{item.title}}</h2>
+                                <p class="help-block" ng-show="item.file_size">{{item.file_size | filesize}}</p>
                                 <p class="help-block">
                                     <b>카운트</b> 0 <b>러닝타임</b> {{item.duration}}초
                                 </p>
@@ -194,8 +190,8 @@
                 </div>
                 <div class="button-bar padding">
                     <a ng-click="showTpltab = 'live'" ng-class="{'button-royal' : showTpltab == 'live'}" class="button button-small">방송용</a>
-                    <a ng-click="showTpltab = 'row_did'" ng-class="{'button-royal' : showTpltab == 'row_did'}" class="button button-small">DID 가로형</a>
-                    <a ng-click="showTpltab = 'col_did'" ng-class="{'button-royal' : showTpltab == 'col_did'}" class="button button-small">DID 세로형</a>
+                    <a ng-click="showTpltab = 'row_did'" ng-class="{'button-royal' : showTpltab == 'row_did'}" class="button button-small">가로형</a>
+                    <a ng-click="showTpltab = 'col_did'" ng-class="{'button-royal' : showTpltab == 'col_did'}" class="button button-small">세로형</a>
                 </div>
                 <div ng-repeat="(category,list) in tpls" class="padding">
                     <ul class="template_ul {{category}}" ng-show="showTpltab == category">
@@ -232,10 +228,6 @@
                         <span class="input-label">클립 명</span>
                         <input type="text" placeholder="클립 명" ng-model="upClip.title" >
                     </label>
-                    <label class="item item-input">
-                        <span class="input-label">타입</span>
-                        <span style="color:gray;">{{clip_type[upClip.clip_type]}}</span>
-                    </label>
                     <label class="item item-input" ng-if="upClip.clip_type != 'V'">
                         <span class="input-label">러닝 타임 (초)</span>
                         <!--<span ng-show="upClip.clip_type == 'V'" style="color:gray;">자동 생성</span>-->
@@ -258,6 +250,10 @@
                         <span class="input-label">링크</span>
                         <span style="color:gray;">{{upClip.url_prefix}}</span>
                         <input type="text" placeholder="softgear.co.kr (예)" ng-model="upClip.url">
+                    </label>
+                    <label class="item item-input">
+                        <span class="input-label">타입</span>
+                        <span style="color:gray;">{{clip_type[upClip.clip_type]}}</span>
                     </label>
                 </div>
                 <div class="padding">
@@ -295,10 +291,6 @@
                         <input type="text" placeholder="클립 명" ng-model="modiClip.title" >
                     </label>
                     <label class="item item-input">
-                        <span class="input-label">타입</span>
-                        <span style="color:gray;">{{clip_type[modiClip.clip_type]}}</span>
-                    </label>
-                    <label class="item item-input">
                         <span class="input-label">러닝 타임 (초)</span>
                         <span ng-show="modiClip.clip_type == 'V'" style="color:gray;">{{modiClip.duration}}</span>
                         <input ng-show="modiClip.clip_type != 'V'" type="text" placeholder="러닝타임(초)" ng-model="modiClip.duration" />
@@ -320,6 +312,10 @@
                         <span class="input-label">링크</span>
                         <span style="color:gray;">{{modiClip.url_prefix}}</span>
                         <input type="text" placeholder="softgear.co.kr (예)" ng-model="modiClip.url">
+                    </label>
+                    <label class="item item-input">
+                        <span class="input-label">타입</span>
+                        <span style="color:gray;">{{clip_type[modiClip.clip_type]}}</span>
                     </label>
                 </div>
                 <div class="padding">
@@ -350,10 +346,10 @@
                 <ion-list>
                     <ion-item class="item-thumbnail-left item-icon-right" ng-repeat="clip in clips | filter:search:strict" type="item-text-wrap" ng-click="selectClip(clip)">
                         <img ng-src="{{clip.thumb_filename ? (clip.thumb_filename | trustUrl) : './img/url.png'}}" height="80">
-                        <h2>{{clip.title}}</h2>
-                        <p class="help-block">{{clip_type[clip.clip_type]}}</p>
-                        <p class="help-block">{{clip.url_prefix}}{{clip.url}}</p>
+                        <h2><span style="color:#666; font-size:12px;">{{clip_type[clip.clip_type]}}</span> {{clip.title}}</h2>
                         <p class="help-block">{{clip.source_filename}}</p>
+                        <p class="help-block" ng-show="clip.file_size">{{clip.file_size | filesize}}</p>
+                        <p class="help-block">{{clip.url_prefix}}{{clip.url}}</p>
                     </ion-item>
                 </ion-list>
 

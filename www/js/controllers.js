@@ -1,7 +1,10 @@
 angular.module('starter.controllers', [])
 
-.controller('dashCtrl', function($scope,$state,$ionicModal,Channel,CurrentChannel,Toast, Browser) {
+.controller('dashCtrl', function($scope,$state,$ionicModal,Channel,CurrentChannel,Toast, Browser, Member) {
     $scope.browser = Browser;
+
+    $scope.channelPage = 1;
+    $scope.channelMore = true;
 
     $scope.init = function(){
         $scope.params = {};
@@ -40,6 +43,83 @@ angular.module('starter.controllers', [])
 
     $scope.goState = function(state_name){
         $state.go(state_name);
+    };
+
+    // modal 접속채널 변경
+    $ionicModal.fromTemplateUrl('mdChannel', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdChannel = modal;
+    });
+    $scope.showMdChannel = function(){
+        $scope.channelPage = 1;
+        $scope.channelMore = true;
+        $scope.channels = [];
+
+        Member.getLoggedInfo().then(function(res2){
+            $scope.logged_info = res2.variables.member_info;
+
+            Channel.getList({page : $scope.channelPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+                if(res.error==0) {
+                    $scope.channels = res.list;
+                    $scope.mdChannel.show();
+                    $scope.channelPage++;
+                }else{
+                    Toast(res.message);
+                }
+            });
+        });
+
+        $scope.mdChannel.show();
+    };
+    $scope.hideMdChannel = function() {
+        $scope.mdChannel.hide();
+        document.location.reload();
+    };
+
+    // Execute action on hide modal
+    $scope.$on('modal.hidden', function() {
+        // Execute action
+        console.log('modal hidden');
+        // document.location.reload();
+    });
+
+    $scope.selectChannel = function(channel) {
+        CurrentChannel.change(channel);
+
+        $scope.mdChannel.hide();
+    };
+
+    $scope.selectAdminChannel = function(){
+        CurrentChannel.changeAdmin();
+
+        $scope.mdChannel.hide();
+    };
+
+    $scope.loadMoreChannel = function(){
+        if($scope.channelPage == 1) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            return;
+        }
+
+        Channel.getList({page : $scope.channelPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            if(res.error==0) {
+                if(res.list) {
+                    for (var key in res.list) {
+                        $scope.channels.push(res.list[key]);
+                    }
+                    $scope.mdChannel.show();
+                    $scope.channelPage++;
+                }else{
+                    $scope.channelMore = false;
+                }
+            }else{
+                $scope.channelMore = false;
+                Toast(res.message);
+            }
+        });
     };
 
     $scope.init();
@@ -715,10 +795,10 @@ angular.module('starter.controllers', [])
 
         var hideSheet = $ionicActionSheet.show({
             buttons: [
-                { text: '새로운 이미지 클립 업로드' },
-                { text: '새로운 동영상 클립 업로드' },
-                { text: '새로운 URL 클립 등록' },
-                { text: '서버에 업로드된 클립 재사용' }
+                { text: '<i class="icon ion-image assertive"></i> 새로운 이미지 클립 업로드' },
+                { text: '<i class="icon ion-videocamera assertive"></i> 새로운 동영상 클립 업로드' },
+                { text: '<i class="icon ion-link assertive"></i> 새로운 URL 클립 등록' },
+                { text: '<i class="icon ion-clipboard assertive"></i> 서버에 업로드된 클립 재사용' }
             ],
             titleText: '클립을 업로드하거나 재사용합니다.',
             cancelText: '취소',
@@ -1022,8 +1102,6 @@ angular.module('starter.controllers', [])
 .controller('settingsCtrl', function($scope, $state, $ionicHistory, Member, Toast, $ionicModal, Channel, CurrentChannel, Browser) {
     $scope.browser = Browser;
     $scope.logged_info = {};
-    $scope.channelPage = 1;
-    $scope.channelMore = true;
 
     $scope.shouldShowDelete = false;
     $scope.shouldShowReorder = false;
@@ -1035,83 +1113,6 @@ angular.module('starter.controllers', [])
 
             if(res.error == 0){
                 $scope.goState('login');
-            }
-        });
-    };
-
-    // modal 접속채널 변경
-    $ionicModal.fromTemplateUrl('mdChannel', {
-        scope: $scope,
-        animation: 'slide-in-up'
-    }).then(function(modal) {
-        $scope.mdChannel = modal;
-    });
-    $scope.showMdChannel = function(){
-        $scope.channelPage = 1;
-        $scope.channelMore = true;
-        $scope.channels = [];
-
-        Member.getLoggedInfo().then(function(res2){
-            $scope.logged_info = res2.variables.member_info;
-
-            Channel.getList({page : $scope.channelPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
-                if(res.error==0) {
-                    $scope.channels = res.list;
-                    $scope.mdChannel.show();
-                    $scope.channelPage++;
-                }else{
-                    Toast(res.message);
-                }
-            });
-        });
-
-        $scope.mdChannel.show();
-    };
-    $scope.hideMdChannel = function() {
-        $scope.mdChannel.hide();
-        document.location.reload();
-    };
-
-    // Execute action on hide modal
-    $scope.$on('modal.hidden', function() {
-        // Execute action
-        console.log('modal hidden');
-        // document.location.reload();
-    });
-
-    $scope.selectChannel = function(channel) {
-        CurrentChannel.change(channel);
-
-        $scope.mdChannel.hide();
-    };
-    
-    $scope.selectAdminChannel = function(){
-        CurrentChannel.changeAdmin();
-        
-        $scope.mdChannel.hide();
-    };
-
-    $scope.loadMoreChannel = function(){
-        if($scope.channelPage == 1) {
-            $scope.$broadcast('scroll.infiniteScrollComplete');
-            return;
-        }
-
-        Channel.getList({page : $scope.channelPage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
-            $scope.$broadcast('scroll.infiniteScrollComplete');
-            if(res.error==0) {
-                if(res.list) {
-                    for (var key in res.list) {
-                        $scope.channels.push(res.list[key]);
-                    }
-                    $scope.mdChannel.show();
-                    $scope.channelPage++;
-                }else{
-                    $scope.channelMore = false;
-                }
-            }else{
-                $scope.channelMore = false;
-                Toast(res.message);
             }
         });
     };
