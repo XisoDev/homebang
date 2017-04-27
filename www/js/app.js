@@ -166,17 +166,33 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter
 })
 
 .filter('trustUrl', function($sce, CurrentChannel){
-    return function(path) {
+    return function(path, is_refresh) {
         if(!path) return ;
         var url = CurrentChannel.get().data_server;
-        return $sce.trustAsResourceUrl(url + path.substr(1));
+
+        var res_url = url + path.substr(1);
+        if(is_refresh) {
+            var time = new Date().getTime();
+
+            res_url = res_url + '?' + time;
+        }
+
+        return $sce.trustAsResourceUrl(res_url);
     };
 })
 
 .filter('trustMainUrl', function($sce, MainServer){
-    return function(path) {
+    return function(path, is_refresh) {
         if(!path) return ;
-        return $sce.trustAsResourceUrl(MainServer.getUrl() + path.substr(1));
+
+        var res_url = MainServer.getUrl() + path.substr(1);
+        if(is_refresh) {
+            var time = new Date().getTime();
+
+            res_url = res_url + '?' + time;
+        }
+
+        return $sce.trustAsResourceUrl(res_url);
     };
 })
 .filter('filesize', function(){

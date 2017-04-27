@@ -1,6 +1,13 @@
 angular.module('starter.controllers', [])
 
-.controller('dashCtrl', function($scope,$state,$ionicModal,Channel,CurrentChannel,Toast, Browser, Member) {
+.controller('dashCtrl', function($scope,$state,$ionicModal,Channel,CurrentChannel,Toast, Browser, Member, $timeout) {
+    $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+        if(fromState.name == 'login') {
+            $timeout(function () {
+                document.location.reload();
+            }, 500);
+        }
+    });
     $scope.browser = Browser;
 
     $scope.channelPage = 1;
@@ -14,6 +21,7 @@ angular.module('starter.controllers', [])
     // 화면에 필요한 채널 정보를 받아옴
     $scope.getChannel = function(){
         $scope.params = CurrentChannel.get();
+        console.log($scope.params);
     };
 
     // 채널명 변경 process
@@ -155,6 +163,7 @@ angular.module('starter.controllers', [])
 
     $scope.getList = function(){
         Player.getList({page : $scope.devicePage, ch_id : CurrentChannel.get().ch_id, did_mode : $scope.did_mode}).then(function(res){
+            // console.log(res);
             if(res.list) {
                 $scope.devices = res.list;
                 $scope.devicePage++;
@@ -216,11 +225,20 @@ angular.module('starter.controllers', [])
     $scope.init();
 })
 
-.controller('deviceDetailCtrl', function($scope, $stateParams, $ionicModal, Devices, $state, Player, Channel, Toast, CurrentChannel, Content) {
+.controller('deviceDetailCtrl', function($scope, $stateParams, $ionicModal, Devices, $state, Player, Channel, Toast, CurrentChannel, Content, Tpl) {
     $scope.channelPage = 1;
     $scope.channelMore = true;
     $scope.contentPage = 1;
     $scope.contentMore = true;
+    $scope.cntPage = 1;
+    $scope.cntMore = true;
+
+    $scope.tpls1D = convert_array_2D_to_1D(Tpl);    // 템플릿 1차원 배열
+    $scope.showTab = 'info';
+
+    $scope.goTab = function(tabName){
+        $scope.showTab = tabName;
+    };
 
     $scope.init = function(){
         $scope.params = {};
@@ -230,8 +248,36 @@ angular.module('starter.controllers', [])
             $scope.device = res.result;
             $scope.params = angular.copy($scope.device);
         });
+
+        Player.getContentList({uuid: $stateParams.deviceId}).then(function(res){
+            // console.log(res);
+            if(res.list) {
+                $scope.cnts = res.list;
+                $scope.cntPage++;
+            }
+        });
         // $scope.device = Devices.get($stateParams.deviceId);
         // $scope.showTab = 'banner';
+    };
+
+    $scope.loadMoreCnt = function(){
+        console.log($scope.cntPage);
+        if($scope.cntPage == 1){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            return;
+        }
+
+        Player.getContentList({page : $scope.cntPage, uuid: $stateParams.deviceId}).then(function(res){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            if(res.list) {
+                for(var key in res.list){
+                    $scope.cnts.push(res.list[key]);
+                }
+                $scope.cntPage++;
+            }else{
+                $scope.cntMore = false;
+            }
+        });
     };
 
     // modal 기기 변경
@@ -378,7 +424,36 @@ angular.module('starter.controllers', [])
             }
         });
     };
-    
+
+
+
+    // modal 클립 카운트 목록
+    $ionicModal.fromTemplateUrl('mdClipCount', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdClipCount = modal;
+    });
+    $scope.showMdClipCount = function(content){
+        $scope.mdClipTitle = content.title;
+        $scope.clips = {};
+
+        Player.getClipList({
+            uuid : $stateParams.deviceId,
+            content_srl : content.content_srl
+        }).then(function(res){
+            if(res.error==0){
+                $scope.clips = res.list;
+                $scope.mdClipCount.show();
+            }else{
+                Toast(res.message);
+            }
+        });
+    };
+    $scope.hideMdClipCount = function() {
+        $scope.mdClipCount.hide();
+    };
+
     $scope.goState = function(state_name){
         $state.go(state_name);
     };
@@ -602,6 +677,7 @@ angular.module('starter.controllers', [])
         }else{
             options.fileKey = "file";
         }
+        console.log(fileName);
         options.fileName = fileName;
         options.mimeType = "image/jpeg";
         options.chunkedMode = false;    //Nginx 서버에 업로드 하는 문제를 방지 하려면.
@@ -1068,7 +1144,10 @@ angular.module('starter.controllers', [])
             if(res.error == 0){
                 console.log('channel init 실행');
                 CurrentChannel.init(); // 접속한 계정의 기본 채널정보를 세팅
-                $state.go('tab.dash');
+                setTimeout(function(){
+                    $state.go('tab.dash');
+                },2000);
+
             }
         });
     };

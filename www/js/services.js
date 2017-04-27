@@ -131,7 +131,7 @@ angular.module('starter.services', [])
     return service;
 })
 
-.factory('CurrentChannel', function(Channel, Member){
+.factory('CurrentChannel', function(Channel, Member, $state){
     var self = this;
 
     self.get = function(){
@@ -184,7 +184,6 @@ angular.module('starter.services', [])
         });
     };
     self.init = function(){
-        console.log(self.get());
         if(!window.localStorage['channel']) {
             console.log('최초 채널이 없어서 새로 받아옴');
             Channel.getChannelByMemberSrl().then(function (res) {
@@ -199,6 +198,7 @@ angular.module('starter.services', [])
                         }
 
                         self.set(result);
+                        // document.location.reload();
                     });
                 } else {
                     self.set({});
@@ -222,7 +222,7 @@ angular.module('starter.services', [])
                                     }
 
                                     self.set(result);
-                                    document.location.reload();
+                                    // document.location.reload();
                                 });
                             } else {
                                 self.set({});
@@ -277,6 +277,12 @@ angular.module('starter.services', [])
     };
     service.update = function(params){
         return XisoApi.send('player.procUpdate', params);
+    };
+    service.getContentList = function(params){
+        return XisoApi.send('player.getContentList', params);
+    };
+    service.getClipList = function(params) {
+        return XisoApi.send('player.getClipList', params);
     };
 
     return service;
@@ -378,8 +384,8 @@ angular.module('starter.services', [])
 
 .factory('XisoApi', function($http, Object, MainServer){
     var service = {};
-    var baseUrl = MainServer.getApi();
-    // var baseUrl = MainServer.getUrl();
+    // var baseUrl = MainServer.getApi();
+    var baseUrl = MainServer.getUrl();
     var finalUrl = '';
 
     service.send = function(action, params){

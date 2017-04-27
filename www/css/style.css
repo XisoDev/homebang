@@ -440,6 +440,9 @@ a{
 .template div:nth-child(12){background: #eb8d23;}
 .template div:nth-child(13){background: #eb8d23;}
 
+
+.count_icon {float:right;font-size:12px;color:#666;}
+
 /* 이전 style */
 /* Empty. Add your own CSS if you like */
 /*.item{*/

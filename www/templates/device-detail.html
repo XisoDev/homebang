@@ -13,44 +13,67 @@
       <div class="spacer"></div>
     </div>
 
-    <div class="sequenceInfo" ng-if="device.rep_img">
-      <div class="iconArea" ng-if="0">
-        <span><i class="xi-airplay"></i> ON AIR </span>
-        <span><i class="xi-play"></i> 100 </span>
-      </div>
-      <img src="{{device.rep_img | trustMainUrl}}" style="width:100%" />
-      <h4>{{device.lastText}}</h4>
+    <div class="button-bar padding">
+      <a ng-click="goTab('info')" ng-class="{'button-royal' : showTab == 'info'}" class="button button-small">기본정보</a>
+      <a ng-click="goTab('view_count')" ng-class="{'button-royal' : showTab == 'view_count'}" class="button button-small">열람정보</a>
     </div>
 
-    <div class="informationbox">
-      <div class="design_banner">
-          <i class="ion-document-text"></i> 설명
-      </div>
-      <div class="col">
-          <p>{{device.desc ? device.desc : '설명이 없습니다'}}</p>
-      </div>
-    </div>
+    <div class="" ng-if="showTab == 'info'">
 
-    <div class="informationbox">
-      <div class="design_banner">
-          <i class="ion-ios-information-outline"></i> 기기 정보
-      </div>
-      <div class="col">
-          <p> UUID : {{device.uuid}} </p>
-          <p> Model : {{device.model}} </p>
-          <p> Serial : {{device.serial}} </p>
-          <p> Model : {{device.model}} </p>
-      </div>
-    </div>
-
-    <div class="informationbox">
-        <div class="design_banner">
-            <i class="xi-security"></i> 채널 정보
+        <div class="sequenceInfo" ng-if="device.rep_img">
+          <div class="iconArea" ng-if="0">
+            <span><i class="xi-airplay"></i> ON AIR </span>
+            <span><i class="xi-play"></i> 100 </span>
+          </div>
+          <img src="{{device.rep_img | trustMainUrl}}" style="width:100%" />
+          <!--<h4>{{device.lastText}}</h4>-->
         </div>
-        <div class="col">
-            <p> 채널 ID : {{device.ch_id}} </p>
-            <p> 대표 컨텐츠 : {{device.content_title}} </p>
+
+        <div class="informationbox">
+          <div class="design_banner">
+              <i class="ion-document-text"></i> 설명
+          </div>
+          <div class="col">
+              <p>{{device.desc ? device.desc : '설명이 없습니다'}}</p>
+          </div>
         </div>
+
+        <div class="informationbox">
+          <div class="design_banner">
+              <i class="ion-ios-information-outline"></i> 기기 정보
+          </div>
+          <div class="col">
+              <p> UUID : {{device.uuid}} </p>
+              <p> Model : {{device.model}} </p>
+              <p> Serial : {{device.serial}} </p>
+              <p> Model : {{device.model}} </p>
+          </div>
+        </div>
+
+        <div class="informationbox">
+            <div class="design_banner">
+                <i class="xi-security"></i> 채널 정보
+            </div>
+            <div class="col">
+                <p> 채널 ID : {{device.ch_id}} </p>
+                <p> 대표 컨텐츠 : {{device.content_title}} </p>
+            </div>
+        </div>
+
+    </div>
+    <div class="padding" ng-if="showTab == 'view_count'">
+        <ion-list>
+            <ion-item class="item-avatar item-icon-right" ng-repeat="cnt in cnts" type="item-text-wrap" ng-click="showMdClipCount(cnt)">
+                <img ng-src="{{cnt.rep_thumb ? (cnt.rep_thumb | trustMainUrl) : './img/no_image.png'}}">
+                <h2>{{cnt.title}}<span class="count_icon"><i class="xi-eye-o"></i> {{cnt.cnt ? (cnt.cnt | number:0) : 0}}</span></h2>
+                <p ng-show="cnt.template">유형 : {{tpls1D[cnt.template].title}} / 타임라인 : {{tpls1D[cnt.template].sequence_count}}개 / {{cnt.is_public == 'Y' ? '공개' : '비공개'}}</p>
+                <i class="icon ion-chevron-right icon-accessory"></i>
+            </ion-item>
+        </ion-list>
+        <ion-infinite-scroll
+                ng-if="cntMore"
+                on-infinite="loadMoreCnt()">
+        </ion-infinite-scroll>
     </div>
 
   </ion-content>
@@ -140,6 +163,29 @@
                         ng-if="contentMore"
                         on-infinite="loadMoreContent()">
                 </ion-infinite-scroll>
+            </ion-content>
+        </ion-modal-view>
+    </script>
+
+    <!--modal clip count list-->
+    <script id="mdClipCount" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">{{mdClipTitle}}</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdClipCount()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <ion-list>
+                    <ion-item class="item-thumbnail-left" ng-repeat="clip in clips | filter:search:strict" type="item-text-wrap" ng-click="selectClip(clip)">
+                        <img ng-src="{{clip.thumb_filename ? (clip.thumb_filename | trustUrl) : './img/url.png'}}" height="80">
+                        <h2><span style="color:#666; font-size:12px;">{{clip_type[clip.clip_type]}}</span> {{clip.title}}<span class="count_icon"><i class="xi-eye-o"></i> {{clip.cnt ? (clip.cnt | number:0) : 0}}</span></h2>
+                        <p class="help-block">{{clip.source_filename}}</p>
+                        <p class="help-block" ng-show="clip.file_size">{{clip.file_size | filesize}}</p>
+                        <p class="help-block">{{clip.url_prefix}}{{clip.url}}</p>
+                    </ion-item>
+                </ion-list>
             </ion-content>
         </ion-modal-view>
     </script>

@@ -21,7 +21,7 @@
         <ion-list>
             <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="device in devices" type="item-text-wrap" href="#/tab/device/{{device.uuid}}">
                 <img ng-src="{{device.rep_img ? (device.rep_img | trustMainUrl) : './img/no_image.png'}}" />
-                <h2>{{device.title}}</h2>
+                <h2>{{device.title}}<span class="count_icon"><i class="xi-eye-o"></i> {{device.cnt ? (device.cnt | number:0) : 0}}</span></h2>
                 <p>{{device.desc}}</p>
                 <i class="icon ion-chevron-right icon-accessory"></i>
 

@@ -26,7 +26,7 @@
                     <i class="xi-refresh"></i> 변경
                 </button>
             </h5>
-            <div ng-if="!rep_img" class="sequenceInfo" ng-style="params.rep_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.rep_thumb | trustMainUrl}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
+            <div ng-if="!rep_img" class="sequenceInfo" ng-style="params.rep_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.rep_thumb | trustMainUrl : true}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
                 <span ng-if="!params.rep_img">등록된 대표 이미지가 없습니다.</span>
             </div>
 
@@ -36,7 +36,7 @@
                     <i class="xi-refresh"></i> 변경
                 </button>
             </h5>
-            <div ng-if="!bg_img" class="sequenceInfo" ng-style="params.bg_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.bg_thumb | trustMainUrl}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
+            <div ng-if="!bg_img" class="sequenceInfo" ng-style="params.bg_img ? { 'height':'200px' } : { 'height': 'auto', 'padding': '20px' }" style="background-image: url('{{params.bg_thumb | trustMainUrl : true}}');background-repeat: no-repeat; background-position: center center; background-size: 100%;">
                 <span ng-if="!params.bg_img">등록된 배경 이미지가 없습니다.</span>
             </div>
 
