@@ -6,6 +6,12 @@ angular.module('starter.controllers', [])
             $timeout(function () {
                 document.location.reload();
             }, 500);
+        }else{
+            Member.getLoggedInfo().then(function(res){
+                if(res.error != 0){
+                    $state.go('login');
+                }
+            });
         }
     });
     $scope.browser = Browser;
@@ -21,7 +27,7 @@ angular.module('starter.controllers', [])
     // 화면에 필요한 채널 정보를 받아옴
     $scope.getChannel = function(){
         $scope.params = CurrentChannel.get();
-        console.log($scope.params);
+        // console.log($scope.params);
     };
 
     // 채널명 변경 process
@@ -133,7 +139,14 @@ angular.module('starter.controllers', [])
     $scope.init();
 })
 
-.controller('deviceCtrl', function($scope,Devices,$state,$ionicModal, Player, Toast, CurrentChannel) {
+.controller('deviceCtrl', function($scope,$state,$ionicModal, Player, Toast, CurrentChannel, Member) {
+    $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+        Member.getLoggedInfo().then(function(res){
+            if(res.error != 0){
+                $state.go('login');
+            }
+        });
+    });
     $scope.devicePage = 1;
     $scope.deviceMore = true;
     $scope.showTab = 'all';
@@ -217,15 +230,11 @@ angular.module('starter.controllers', [])
     $scope.goState = function(state_name){
         $state.go(state_name);
     };
-    // $scope.devices = Devices.all();
-    // $scope.remove = function(device) {
-    //     Devices.remove(device);
-    // };
 
     $scope.init();
 })
 
-.controller('deviceDetailCtrl', function($scope, $stateParams, $ionicModal, Devices, $state, Player, Channel, Toast, CurrentChannel, Content, Tpl) {
+.controller('deviceDetailCtrl', function($scope, $stateParams, $ionicModal, $state, Player, Channel, Toast, CurrentChannel, Content, Tpl) {
     $scope.channelPage = 1;
     $scope.channelMore = true;
     $scope.contentPage = 1;
@@ -250,18 +259,17 @@ angular.module('starter.controllers', [])
         });
 
         Player.getContentList({uuid: $stateParams.deviceId}).then(function(res){
-            // console.log(res);
+            console.log(res);
             if(res.list) {
                 $scope.cnts = res.list;
                 $scope.cntPage++;
             }
         });
-        // $scope.device = Devices.get($stateParams.deviceId);
-        // $scope.showTab = 'banner';
+
     };
 
     $scope.loadMoreCnt = function(){
-        console.log($scope.cntPage);
+        // console.log($scope.cntPage);
         if($scope.cntPage == 1){
             $scope.$broadcast('scroll.infiniteScrollComplete');
             return;
@@ -461,14 +469,24 @@ angular.module('starter.controllers', [])
     $scope.init();
 })
 
-.controller('contentCtrl', function($scope, $state, Chats , Content, CurrentChannel, Toast, Tpl, $ionicModal) {
+.controller('contentCtrl', function($scope, $state, Content, CurrentChannel, Toast, Tpl, $ionicModal, $ionicPopup, Member) {
+    $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+        $scope.contents = [];
+        Member.getLoggedInfo().then(function(res){
+            if(res.error != 0){
+                $state.go('login');
+            }else{
+                $scope.init();
+            }
+        });
+    });
 
     $scope.tpls1D = convert_array_2D_to_1D(Tpl);    // 템플릿 1차원 배열
 
-    $scope.contentPage = 1;
-    $scope.contentMore = true;
-
     $scope.init = function(){
+        $scope.contentPage = 1;
+        $scope.contentMore = true;
+
         $scope.params = {};
         $scope.contents = [];
         $scope.getList();
@@ -523,6 +541,23 @@ angular.module('starter.controllers', [])
         });
     };
 
+    $scope.remove = function(content){
+        $ionicPopup.confirm({
+            title: '삭제',
+            template: content.title + '(을)를 삭제할까요?',
+            okText: '예', cancelText: '아니오'
+        }).then(function (res) {
+            if (res) {
+                Content.delete(content).then(function(res2){
+                    Toast(res2.message);
+                    if(res2.error == 0){
+                        $scope.init();
+                    }
+                });
+            }
+        });
+    };
+
     // modal 새 디바이스
     $ionicModal.fromTemplateUrl('mdContentAdd', {
         scope: $scope,
@@ -541,7 +576,7 @@ angular.module('starter.controllers', [])
         $state.go(state_name);
     };
 
-    $scope.init();
+    // $scope.init();
 })
 
 .controller('contentDetailCtrl', function($scope, $stateParams, $ionicActionSheet, $state, $timeout, Content, Toast, CurrentChannel, Tpl, $ionicModal, $ionicPopup, $ionicPlatform, $cordovaCamera, MainServer, Clip, Trans, UrlPrefix) {
@@ -1107,8 +1142,7 @@ angular.module('starter.controllers', [])
     // modal 에서 공지사항 추가 완료
     $scope.addNotice = function(){
         if(!$scope.notice.content) return Toast('공지사항 내용을 입력하세요.');
-        if(!$scope.notice.url_prefix) return Toast('링크 종류을 선택하세요.');
-        if(!$scope.notice.url) return Toast('링크 내용을 입력하세요.');
+        if($scope.notice.url && !$scope.notice.url_prefix) return Toast('링크 종류을 선택하세요.');
 
         $scope.params.notices.push($scope.notice);
         $scope.hideMdNotice();

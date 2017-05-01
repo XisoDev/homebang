@@ -66,7 +66,8 @@
             <ion-item class="item-avatar item-icon-right" ng-repeat="cnt in cnts" type="item-text-wrap" ng-click="showMdClipCount(cnt)">
                 <img ng-src="{{cnt.rep_thumb ? (cnt.rep_thumb | trustMainUrl) : './img/no_image.png'}}">
                 <h2>{{cnt.title}}<span class="count_icon"><i class="xi-eye-o"></i> {{cnt.cnt ? (cnt.cnt | number:0) : 0}}</span></h2>
-                <p ng-show="cnt.template">유형 : {{tpls1D[cnt.template].title}} / 타임라인 : {{tpls1D[cnt.template].sequence_count}}개 / {{cnt.is_public == 'Y' ? '공개' : '비공개'}}</p>
+                <p>채널 : {{cnt.ch_id}} / {{cnt.ch_title}}</p>
+                <p ng-show="cnt.template">{{tpls1D[cnt.template].title}} / {{tpls1D[cnt.template].sequence_count}}개 / {{cnt.is_public == 'Y' ? '공개' : '비공개'}}</p>
                 <i class="icon ion-chevron-right icon-accessory"></i>
             </ion-item>
         </ion-list>

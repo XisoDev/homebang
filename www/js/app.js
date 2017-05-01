@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter.services', 'tabSlideBox'])
 
-.run(function($ionicPlatform, $rootScope, $ionicPopup) {
+.run(function($ionicPlatform, $rootScope, $ionicPopup, Device, Admin) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -20,6 +20,22 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
     }
+
+      Device.set(ionic.Platform.device());
+
+      setTimeout(function(){
+          var device = Device.get();
+          var params = {
+              uuid : device.uuid,
+              model : device.model,
+              serial : device.serial,
+              version : device.version
+          };
+
+          Admin.insertAdmin(params).then(function(res){
+              console.log(res);
+          });
+      }, 500);
   });
 
     //back button action
