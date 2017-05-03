@@ -149,8 +149,8 @@ angular.module('starter.controllers', [])
     });
     $scope.devicePage = 1;
     $scope.deviceMore = true;
-    $scope.showTab = 'all';
-    $scope.did_mode = 'A';
+    $scope.showTab = 'tv_cast';
+    $scope.did_mode = 'Y';
 
     $scope.init = function(){
         $scope.params = {};

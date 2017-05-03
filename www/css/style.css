@@ -423,6 +423,28 @@ a{
 .template_ul li div:nth-child(11){background: #8a7b29;}
 .template_ul li div:nth-child(12){background: #eb8d23;}
 .template_ul li div:nth-child(13){background: #eb8d23;}
+.ticker {
+    height: 20%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    position:absolute;
+    background:rgba(0,0,0,.6);
+    left:0;
+    z-index:100;
+    bottom:0;
+    width:100%;
+}
+.ticker li {
+    height: 20% !important;
+    width: 100% !important;
+    padding: 2px;
+    /*box-sizing:content-box;*/
+    margin: 0;
+    border: none;
+}
 
 
 .template div{color:#FFF; padding:3px; float:left; overflow:hidden; text-align:center;}
