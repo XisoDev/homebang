@@ -204,6 +204,7 @@ angular.module('starter.controllers', [])
     };
 
     $scope.addPlayer = function(){
+        $scope.params.ch_id = CurrentChannel.get().ch_id;
         Player.addPlayer($scope.params).then(function(res){
             Toast(res.message);
             if(res.error==0){
@@ -1211,7 +1212,147 @@ angular.module('starter.controllers', [])
         $state.go(state_name);
     };
 })
+.controller('messageCtrl', function($scope, $state, $ionicModal, $ionicPopup, CurrentChannel, Member, Player, Toast, Channel) {
+    $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+        Member.getLoggedInfo().then(function(res){
+            $scope.member_info = res.variables.member_info;
+            if(res.error != 0){
+                $state.go('login');
+            }
+        });
 
+        $scope.getChannel();
+    });
+
+    $scope.devicePage = 1;
+    $scope.deviceMore = true;
+
+    $scope.init = function(){
+        $scope.params = {};
+        $scope.devicePage = 1;
+        $scope.devices = [];
+
+        $scope.getList();
+        $scope.getChannel();
+    };
+
+    $scope.getChannel = function(){
+        Channel.getChannelByMemberSrl().then(function(res){
+            $scope.ch = res.result;
+        });
+    };
+
+    $scope.getList = function(){
+        Player.getCastList({page : $scope.devicePage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+            console.log(res);
+            $scope.total_count = 0;
+
+            if(res.list) {
+                $scope.total_count = res.pagination.total_count;
+                $scope.devices = res.list;
+                $scope.devicePage++;
+            }
+        });
+    };
+
+    $scope.loadMoreDevice = function(){
+        if($scope.devicePage == 1){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            return;
+        }
+
+        Player.getCastList({page : $scope.devicePage, ch_srl : CurrentChannel.get().ch_srl}).then(function(res){
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            if(res.list) {
+                for(var key in res.list){
+                    $scope.devices.push(res.list[key]);
+                }
+                $scope.devicePage++;
+            }else{
+                $scope.deviceMore = false;
+            }
+        });
+    };
+
+    // 전체 보내기
+    $scope.sendAll = function(){
+        if(!$scope.params.content) return Toast('메세지 내용을 입력하세요.');
+
+        $ionicPopup.confirm({
+            title: '메시지',
+            template: $scope.total_count + '명에게 메시지를 전송합니다.',
+            okText: '예', cancelText: '아니오'
+        }).then(function (res) {
+            if (res) {
+                Player.sendMsg({is_all : 'Y', ch_srl: CurrentChannel.get().ch_srl, ch_title: CurrentChannel.get().title, content: $scope.params.content}).then(function(res){
+                    // console.log(res);
+                    if(res.error==0){
+                        Toast('전송 성공 : '+res.curl_result.success+', 전송 실패 : '+res.curl_result.failure);
+                    }else {
+                        Toast(res.message);
+                    }
+                });
+            }
+        });
+
+    };
+
+    // 선택 보내기
+    $scope.send = function(){
+        if(!$scope.params.content) return Toast('메세지 내용을 입력하세요.');
+
+        var count = 0;
+        var arr = [];
+        for(key in $scope.devices){
+            if($scope.devices[key].checked && $scope.devices[key].fcm_token){
+                arr.push($scope.devices[key].fcm_token);
+                count++;
+            }
+        }
+
+        if(count == 0) return Toast('메시지를 보낼 단말기를 선택해주세요.');
+
+        $ionicPopup.confirm({
+            title: '메시지',
+            template: count + '명에게 메시지를 전송합니다.',
+            okText: '예', cancelText: '아니오'
+        }).then(function (res) {
+            if (res) {
+                Player.sendMsg({ch_srl: CurrentChannel.get().ch_srl, ch_title: CurrentChannel.get().title, content: $scope.params.content, tokens: arr}).then(function(res){
+                    console.log(res);
+                    if(res.error==0){
+                        Toast('전송 성공 : '+res.curl_result.success+', 전송 실패 : '+res.curl_result.failure);
+                    }else {
+                        Toast(res.message);
+                    }
+                    $scope.hideMdDevice();
+                });
+            }
+        });
+
+
+    };
+
+    // modal 새 디바이스
+    $ionicModal.fromTemplateUrl('mdDevice', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.mdDevice = modal;
+    });
+    $scope.showMdDevice = function(){
+        $scope.mdDevice.show();
+    };
+    $scope.hideMdDevice = function() {
+        $scope.mdDevice.hide();
+    };
+
+    $scope.goState = function(state_name){
+        $state.go(state_name);
+    };
+
+    $scope.init();
+})
 .controller('settingsCtrl', function($scope, $state, $ionicHistory, Member, Toast, $ionicModal, Channel, CurrentChannel, Browser) {
     $scope.browser = Browser;
     $scope.logged_info = {};

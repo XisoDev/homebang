@@ -225,6 +225,12 @@ angular.module('starter.services', [])
     service.getClipList = function(params) {
         return XisoApi.send('player.getClipList', params);
     };
+    service.getCastList = function(params) {
+        return XisoApi.send('player.getCastList', params);
+    };
+    service.sendMsg = function(params) {
+        return XisoApi.send('message.procSendMsg', params);
+    };
 
     return service;
 })
@@ -272,6 +278,16 @@ angular.module('starter.services', [])
     };
     service.getPrivacy = function(){
         return XisoApi.send('config.getConfig', {name : 'homebang_privacy'});
+    };
+
+    return service;
+})
+
+.factory('Msg', function(XisoApi){
+    var service = {};
+
+    service.sendMsg = function(params){
+        return XisoApi.send('message.procSendMsg', params);
     };
 
     return service;

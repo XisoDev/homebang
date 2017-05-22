@@ -1,9 +1,115 @@
-<ion-view view-title="Account">
-  <ion-content>
-    <ion-list>
-    <ion-toggle  ng-model="settings.enableFriends">
-        Enable Friends
-    </ion-toggle>
-    </ion-list>
-  </ion-content>
+<style>
+.message_preview{
+    max-width:100%;
+    width:400px;
+    margin:10px auto;
+}
+.message_preview th, .message_preview td{
+    vertical-align: middle;
+}
+.message_preview th{
+    /*border: 1px solid #eee;*/
+    border-top:1px solid #ccc;
+    border-left:1px solid #ccc;
+    border-bottom:1px solid #ccc;
+    border-right:1px solid #eee;
+}
+.message_preview td{
+    padding:5px;
+}
+.message_preview tr:first-child td{
+    border-top:1px solid #ccc;
+    border-right:1px solid #ccc;
+    border-bottom:1px solid #eee;
+}
+.message_preview tr:last-child td{
+    border-right:1px solid #ccc;
+    border-bottom:1px solid #ccc;
+}
+</style>
+<ion-view view-title="메세지">
+    <ion-content>
+        <div class="softgearHeader">
+            메세지
+            <span class="pull-right">
+                <button class="button button-small" ng-click="goState('settings')"><i class="xi-cog"></i></button>
+            </span>
+            <div class="spacer"></div>
+        </div>
+
+        <div ng-if="(ch.is_free == 'N' || member_info.is_admin == 'Y') && total_count > 0">
+            <div class="padding">
+                <h5>메세지 미리보기</h5>
+                <!--<p class="help-block">홈방CAST 사용자가 푸시메시지를 탭하면 해당 채널정보로 이동하게 됩니다.</p>-->
+            </div>
+            <table class="message_preview" cellpadding="0" cellspacing="0">
+                <colgroup>
+                    <col style="width:25%" />
+                    <col style="width:75%" />
+                </colgroup>
+                <tr>
+                    <th rowspan="2">
+                        <img src="./img/cast.png" style="width:100%;" />
+                    </th>
+                    <td>{{ch.title}}</td>
+                </tr>
+                <tr>
+                    <td ng-if="!params.content" style="color:#ccc;">내용이 들어가는 부분입니다.</td>
+                    <td ng-if="params.content" ng-bind-html="params.content | nl2br"></td>
+                </tr>
+            </table>
+
+            <div class="padding">
+                <h5>메시지 내용입력</h5>
+            </div>
+            <div class="list">
+                <label class="item item-input">
+                    <textarea placeholder="메세지 내용" rows="3" ng-model="params.content"></textarea>
+                </label>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <a class="button button-small button-positive button-block" ng-click="sendAll()">전체 보내기 ({{total_count}}명)</a>
+                </div>
+                <div class="col">
+                    <a class="button button-small button-dark button-block" ng-click="showMdDevice()" style="border-color:#28a54c;background-color: #28a54c;">선택하여 보내기</a>
+                </div>
+            </div>
+        </div>
+        <div ng-if="total_count == 0">
+            <div class="padding">
+                <h5>해당 채널에 등록된 단말기가 없습니다.</h5>
+            </div>
+        </div>
+        <div ng-if="ch.is_free == 'Y' && member_info.is_admin != 'Y' && total_count > 0">
+            <div class="padding">
+                <h5>유료 채널에서 이용하실수 있습니다.</h5>
+            </div>
+        </div>
+    </ion-content>
+
+    <!--modal device select-->
+    <script id="mdDevice" type="text/ng-template">
+        <ion-modal-view style="background:#eeeeee;">
+            <ion-header-bar>
+                <h1 class="title">단말기 선택</h1>
+                <div class="buttons">
+                    <button class="button-icon" ng-click="hideMdDevice()"><i class="icon ion-ios-close-empty"></i></button>
+                </div>
+            </ion-header-bar>
+            <ion-content>
+                <ion-list>
+                    <ion-checkbox ng-repeat="device in devices" ng-model="device.checked">{{device.title}}</ion-checkbox>
+                </ion-list>
+
+                <ion-infinite-scroll
+                        ng-if="deviceMore"
+                        on-infinite="loadMoreDevice()">
+                </ion-infinite-scroll>
+            </ion-content>
+            <ion-footer-bar>
+                <button type="button" ng-click="send()" class="button button-block button-positive" style="margin: 0;">보내기</button>
+            </ion-footer-bar>
+        </ion-modal-view>
+    </script>
 </ion-view>
