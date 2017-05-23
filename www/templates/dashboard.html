@@ -40,7 +40,7 @@
           </div>
           <div class="col">
               <p> {{params.used_space | number:1}}M / <b ng-show="params.limit">{{params.limit | number:1 }}M</b><b ng-show="!params.limit">무제한</b> </p>
-              <a href="#">용량을 추가할까요? </a>
+              <a ng-click="browser.openInAppBrowser('http://softgear.co.kr/index.php?mid=customer&category=231&act=dispBoardWrite')">용량을 추가할까요? </a>
           </div>
       </div>
 
@@ -52,7 +52,7 @@
         <p>
           전문인력이 빠르고 정확하게 디자인해드립니다.
         </p>
-        <a ng-click="browser.openInAppBrowser('http://softgear.co.kr')">신청하기
+        <a ng-click="browser.openInAppBrowser('http://softgear.co.kr/index.php?mid=customer&category=232&act=dispBoardWrite')">신청하기
           <i class="xi-angle-right"></i>
         </a>
       </div>
